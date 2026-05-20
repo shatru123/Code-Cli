@@ -13,10 +13,10 @@ public sealed class OllamaRuntimeManager(AppConfig config)
     public async Task<RuntimePreparationResult> PrepareAsync(CancellationToken ct = default)
     {
         if (!UsesDocker)
-            return RuntimePreparationResult.Success("Using local Ollama runtime.");
+            return RuntimePreparationResult.Ok("Using local Ollama runtime.");
 
         if (!_config.DockerAutoStart)
-            return RuntimePreparationResult.Success("Docker runtime selected. Auto-start is disabled.");
+            return RuntimePreparationResult.Ok("Docker runtime selected. Auto-start is disabled.");
 
         var dockerCheck = await RunDockerAsync(ct, "--version");
         if (!dockerCheck.Success)
@@ -107,7 +107,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
             {
                 var response = await http.GetFromJsonAsync<OllamaModelsResponse>($"{_config.Host.TrimEnd('/')}/api/tags", ct);
                 if (response is not null)
-                    return RuntimePreparationResult.Success(readyMessage);
+                    return RuntimePreparationResult.Ok(readyMessage);
             }
             catch
             {
@@ -159,7 +159,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
 public sealed record RuntimePreparationResult(bool Success, string Message)
 {
     public static RuntimePreparationResult Failure(string message) => new(false, message);
-    public static RuntimePreparationResult Success(string message) => new(true, message);
+    public static RuntimePreparationResult Ok(string message) => new(true, message);
 }
 
 internal sealed record CommandResult(bool Success, string Output, string Error);
