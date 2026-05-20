@@ -18,6 +18,7 @@ Console.CancelKeyPress += (_, e) =>
 string? modelOverride   = GetFlag(args, "--model");
 string? hostOverride    = GetFlag(args, "--host");
 string? outputFile      = GetFlag(args, "--output");
+string? runtimeOverride = GetFlag(args, "--runtime");
 bool    noStream        = args.Contains("--no-stream");
 bool    verbose         = args.Contains("--verbose");
 
@@ -29,6 +30,7 @@ var cleanArgs = StripFlags(args);
 var config = ConfigManager.Load();
 if (modelOverride  is not null) config.Model  = modelOverride;
 if (hostOverride   is not null) config.Host   = hostOverride;
+if (runtimeOverride is not null) config.Runtime = ConfigManager.NormalizeRuntime(runtimeOverride);
 if (noStream)                   config.Stream = false;
 
 // ── No args → show help ───────────────────────────────────────────────────────
@@ -40,6 +42,7 @@ if (cleanArgs.Length == 0)
 }
 
 var command = cleanArgs[0].ToLowerInvariant();
+var runtime = new OllamaRuntimeManager(config);
 
 // ── Special commands (no Ollama needed) ──────────────────────────────────────
 
@@ -69,6 +72,28 @@ if (command is "config")
 var ollama    = new OllamaService(config.Host);
 var assistant = new CodeAssistantService(ollama, config.Model);
 
+if (runtime.UsesDocker)
+{
+    var preparation = await ConsoleUI.WithSpinnerAsync(
+        "Preparing Ollama Docker runtime",
+        () => runtime.PrepareAsync(cts.Token),
+        cts.Token);
+
+    if (!preparation.Success)
+    {
+        ConsoleUI.Error(preparation.Message);
+        Console.WriteLine();
+        Console.WriteLine("  To fix this:");
+        foreach (var step in runtime.GetStartupHelp())
+            Console.WriteLine($"  {step}");
+        Console.WriteLine();
+        return 1;
+    }
+
+    if (verbose)
+        ConsoleUI.Info(preparation.Message);
+}
+
 if (command is "models")
 {
     ConsoleUI.SectionHeader("INSTALLED MODELS");
@@ -79,7 +104,10 @@ if (command is "models")
 
     if (models.Count == 0)
     {
-        ConsoleUI.Warning("No models found. Install one with: ollama pull qwen2.5-coder:7b");
+        var installCommand = runtime.UsesDocker
+            ? $"docker exec -it {config.DockerContainerName} ollama pull qwen2.5-coder:7b"
+            : "ollama pull qwen2.5-coder:7b";
+        ConsoleUI.Warning($"No models found. Install one with: {installCommand}");
     }
     else
     {
@@ -101,9 +129,8 @@ if (!ollamaRunning)
     ConsoleUI.Error($"Cannot connect to Ollama at {config.Host}");
     Console.WriteLine();
     Console.WriteLine("  To fix this:");
-    Console.WriteLine("  1. Install Ollama from  https://ollama.ai");
-    Console.WriteLine("  2. Run: ollama serve");
-    Console.WriteLine("  3. Pull a model: ollama pull qwen2.5-coder:7b");
+    foreach (var step in runtime.GetStartupHelp())
+        Console.WriteLine($"  {step}");
     Console.WriteLine();
     return 1;
 }
@@ -244,7 +271,7 @@ static string? GetFlag(string[] args, string flag)
 static string[] StripFlags(string[] args)
 {
     var result = new List<string>();
-    var flagsWithValues = new HashSet<string> { "--model", "--host", "--output", "--error" };
+    var flagsWithValues = new HashSet<string> { "--model", "--host", "--output", "--error", "--runtime" };
 
     for (int i = 0; i < args.Length; i++)
     {

@@ -70,7 +70,14 @@ dotnet --version
 # Should print 8.x.x
 ```
 
-### 2. Ollama *(required to run — provides the AI brain)*
+### 2. Ollama Runtime *(required to run — provides the AI brain)*
+
+Code-Cli now supports two Ollama runtime modes:
+
+- **Local Ollama**: install Ollama directly on your machine
+- **Docker Ollama**: let Code-Cli start and use an Ollama Docker container
+
+#### Local Ollama
 
 Download and install from:
 👉 https://ollama.ai
@@ -82,6 +89,15 @@ Download and install from:
 Verify Ollama is installed:
 ```bash
 ollama --version
+```
+
+#### Docker Ollama
+
+Install Docker Desktop or Docker Engine, then verify Docker is available:
+
+```bash
+docker --version
+docker info
 ```
 
 ---
@@ -120,7 +136,9 @@ Open a **new terminal** after install.
 
 ## First-Time Setup (Pull an AI Model)
 
-After installing Ollama, pull a code-focused AI model. This is a one-time download:
+### Local Ollama setup
+
+After installing Ollama locally, pull a code-focused AI model. This is a one-time download:
 
 ```bash
 # Best overall — recommended (requires ~4 GB disk + 8 GB RAM)
@@ -139,6 +157,26 @@ ollama serve
 ```
 
 > **Note:** On Windows and macOS, Ollama starts automatically after install and runs in the background. You only need `ollama serve` on Linux.
+
+### Docker Ollama setup
+
+If you prefer Docker, switch Code-Cli to Docker mode:
+
+```bash
+code-cli chat --runtime docker
+```
+
+On first use, Code-Cli will create and start an Ollama container automatically using:
+
+```bash
+docker run -d --name code-cli-ollama -p 11434:11434 -v code-cli-ollama:/root/.ollama ollama/ollama:latest
+```
+
+Then pull a model inside the container:
+
+```bash
+docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
+```
 
 ---
 
@@ -257,6 +295,7 @@ code-cli models
 |---|---|---|
 | `--model <name>` | `qwen2.5-coder:7b` | Use a specific AI model |
 | `--host <url>` | `http://localhost:11434` | Ollama server URL |
+| `--runtime <type>` | `local` | Choose `local` or `docker` Ollama runtime |
 | `--output <file>` | *(print to console)* | Save response to a file |
 | `--error <message>` | *(none)* | Error context for `fix` command |
 | `--no-stream` | *(streaming on)* | Wait for full response before printing |
@@ -271,7 +310,12 @@ Config is stored at `~/.code-cli/config.json` and is created automatically on fi
 ```json
 {
   "model": "qwen2.5-coder:7b",
+  "runtime": "local",
   "host": "http://localhost:11434",
+  "docker_image": "ollama/ollama:latest",
+  "docker_container_name": "code-cli-ollama",
+  "docker_volume": "code-cli-ollama",
+  "docker_auto_start": true,
   "stream": true,
   "history_size": 10,
   "preferred_language": "auto"
@@ -325,6 +369,10 @@ code-cli.exe
                     ↓
                 Local LLM (qwen2.5-coder, deepseek-coder, etc.)
                 Runs 100% on your GPU / CPU
+
+└── OllamaRuntimeManager
+        └── Chooses local or docker runtime
+            Can auto-start `ollama/ollama` in Docker mode
 ```
 
 ---
@@ -335,6 +383,13 @@ code-cli.exe
 ```bash
 ollama serve    # Start Ollama manually (Linux)
 # On Windows/Mac: check system tray — Ollama should be running
+```
+
+**"Cannot connect in Docker mode"**
+```bash
+docker info
+docker ps -a | grep code-cli-ollama
+docker start code-cli-ollama
 ```
 
 **Slow responses**
@@ -348,6 +403,12 @@ code-cli chat --model qwen2.5-coder:1.5b
 ```bash
 ollama list                        # See what's installed
 ollama pull qwen2.5-coder:7b       # Pull the default model
+```
+
+**Model not found in Docker mode**
+```bash
+docker exec -it code-cli-ollama ollama list
+docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
 ```
 
 **Out of memory crash**
@@ -365,7 +426,7 @@ ollama pull qwen2.5-coder:1.5b
 ## Tech Stack
 
 - **Runtime:** .NET 8 (C# 12)
-- **AI Engine:** Ollama (local LLM runner)
+- **AI Engine:** Ollama (local or Docker runtime)
 - **Default Model:** Qwen 2.5 Coder 7B
 - **Transport:** HTTP streaming (NDJSON) via `HttpClient`
 - **Output:** Single self-contained `.exe` (no install required)

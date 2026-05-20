@@ -185,6 +185,7 @@ public static class ConsoleUI
         Console.WriteLine($"  {Bold}OPTIONS{Reset}");
         Console.WriteLine($"    {Yellow}--model   <name>{Reset}     Override the AI model (default: qwen2.5-coder:7b)");
         Console.WriteLine($"    {Yellow}--host    <url>{Reset}      Ollama host (default: http://localhost:11434)");
+        Console.WriteLine($"    {Yellow}--runtime <type>{Reset}     Ollama runtime: local or docker");
         Console.WriteLine($"    {Yellow}--output  <file>{Reset}     Save response to file");
         Console.WriteLine($"    {Yellow}--no-stream{Reset}          Wait for full response before printing");
         Console.WriteLine();
@@ -196,12 +197,13 @@ public static class ConsoleUI
         Console.WriteLine($"    {Gray}code-cli review Controllers/AuthController.cs{Reset}");
         Console.WriteLine($"    {Gray}code-cli explain Program.cs{Reset}");
         Console.WriteLine($"    {Gray}code-cli models{Reset}");
+        Console.WriteLine($"    {Gray}code-cli ask \"Explain LINQ joins\" --runtime docker{Reset}");
         Console.WriteLine();
         Console.WriteLine($"  {Bold}SETUP{Reset}");
-        Console.WriteLine($"    1. Install Ollama:   {Cyan}https://ollama.ai{Reset}");
-        Console.WriteLine($"    2. Pull a model:     {Cyan}ollama pull qwen2.5-coder:7b{Reset}");
-        Console.WriteLine($"    3. Start Ollama:     {Cyan}ollama serve{Reset}");
-        Console.WriteLine($"    4. Run Code-Cli:     {Cyan}code-cli chat{Reset}");
+        Console.WriteLine($"    1. Local: install Ollama from {Cyan}https://ollama.ai{Reset}");
+        Console.WriteLine($"    2. Docker: install Docker Desktop / Docker Engine");
+        Console.WriteLine($"    3. Pull a model:     {Cyan}ollama pull qwen2.5-coder:7b{Reset} {Gray}(local){Reset}");
+        Console.WriteLine($"    4. Or use Docker:    {Cyan}code-cli chat --runtime docker{Reset}");
         Console.WriteLine();
     }
 }
