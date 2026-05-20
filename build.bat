@@ -62,10 +62,10 @@ echo   Output  :  %CD%\publish\code-cli.exe
 echo.
 echo   Next steps:
 echo   1. Run install.bat  (adds to PATH automatically)
-echo   2. Install Ollama:  https://ollama.ai
-echo   3. Pull model:      ollama pull qwen2.5-coder:7b
-echo   4. Start:           ollama serve
-echo   5. Use:             code-cli chat
+echo   2. Local Ollama:    https://ollama.ai
+echo   3. Docker Ollama:   install Docker Desktop
+echo   4. Run local:       code-cli chat
+echo   5. Run Docker:      code-cli chat --runtime docker
 echo.
 explorer publish 2>nul
 pause

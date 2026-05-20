@@ -178,6 +178,39 @@ Then pull a model inside the container:
 docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
 ```
 
+If you want a faster first run on lower-spec machines, use:
+
+```bash
+docker exec -it code-cli-ollama ollama pull qwen2.5-coder:1.5b
+```
+
+---
+
+## macOS Quick Start
+
+### Run with local Ollama
+
+```bash
+git clone https://github.com/shatru123/Code-Cli.git
+cd Code-Cli
+dotnet run --project Code-Cli.csproj -- chat --runtime local
+```
+
+### Run with Docker Ollama
+
+```bash
+git clone https://github.com/shatru123/Code-Cli.git
+cd Code-Cli
+dotnet run --project Code-Cli.csproj -- chat --runtime docker
+```
+
+### Run after Docker is configured as default runtime
+
+```bash
+cd Code-Cli
+dotnet run --project Code-Cli.csproj -- chat
+```
+
 ---
 
 ## Usage Guide
@@ -285,6 +318,7 @@ code-cli explain ComplexService.cs --output explanation.md
 
 ```bash
 code-cli models
+dotnet run --project Code-Cli.csproj -- models
 ```
 
 ---
@@ -325,6 +359,7 @@ Config is stored at `~/.code-cli/config.json` and is created automatically on fi
 View current config:
 ```bash
 code-cli config
+dotnet run --project Code-Cli.csproj -- config
 ```
 
 ---
@@ -390,6 +425,26 @@ ollama serve    # Start Ollama manually (Linux)
 docker info
 docker ps -a | grep code-cli-ollama
 docker start code-cli-ollama
+```
+
+**"No .NET SDKs were found"**
+```bash
+dotnet --list-sdks
+```
+
+If `dotnet` shows only the runtime and no SDKs, install the .NET 8 SDK and make sure your shell resolves the SDK copy first.
+
+On macOS with a user-local install, add this to `~/.zshrc` or `~/.zprofile`:
+
+```bash
+export DOTNET_ROOT="$HOME/.dotnet"
+export PATH="$DOTNET_ROOT:$PATH"
+```
+
+Then open a new terminal or run:
+
+```bash
+source ~/.zshrc
 ```
 
 **Slow responses**
