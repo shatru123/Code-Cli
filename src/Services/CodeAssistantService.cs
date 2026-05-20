@@ -1,3 +1,5 @@
+using CodeCli.Providers;
+
 namespace CodeCli.Services;
 
 public static class Prompts
@@ -105,17 +107,42 @@ public static class Prompts
 
         You are conversational and professional. Keep responses focused and actionable.
         """;
+
+    public const string Optimizer = """
+        You are Code-Cli, a performance and maintainability specialist.
+        Provide concrete optimization recommendations with priorities, expected impact, and implementation notes.
+        Favor practical changes over vague advice.
+        """;
+
+    public const string ArchitectureAdvisor = """
+        You are Code-Cli, a principal architect.
+        Explain the repository architecture, identify coupling and extension points, and recommend a clean next-step roadmap.
+        """;
+
+    public const string RepositoryDiagnostician = """
+        You are Code-Cli, an autonomous diagnostics engineer.
+        Inspect the repository context and identify likely build failures, design flaws, error handling gaps, testing gaps, and operational risks.
+        """;
+
+    public const string Planner = """
+        You are Code-Cli, a senior autonomous coding agent planner.
+        Break the objective into a small, ordered, implementation-ready plan with validation steps and rollback considerations.
+        """;
 }
 
-public class CodeAssistantService(OllamaService ollama, string model)
+public class CodeAssistantService(IModelProvider provider, string model)
 {
     public string Model { get; set; } = model;
 
+    public string ProviderName => provider.Name;
+
+    public string Endpoint => provider.Endpoint;
+
     public IAsyncEnumerable<string> AskAsync(string question, CancellationToken ct = default) =>
-        ollama.StreamCompletionAsync(Model, Prompts.ChatAssistant, question, ct);
+        provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.ChatAssistant, question), ct);
 
     public IAsyncEnumerable<string> WriteCodeAsync(string description, CancellationToken ct = default) =>
-        ollama.StreamCompletionAsync(Model, Prompts.CodeWriter, description, ct);
+        provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.CodeWriter, description), ct);
 
     public IAsyncEnumerable<string> FixCodeAsync(string code, string? errorMessage, CancellationToken ct = default)
     {
@@ -123,19 +150,19 @@ public class CodeAssistantService(OllamaService ollama, string model)
             ? $"Analyze and fix all bugs in the following code:\n\n```\n{code}\n```"
             : $"Fix the following code. The reported error is:\n\n**Error:** {errorMessage}\n\n**Code:**\n```\n{code}\n```";
 
-        return ollama.StreamCompletionAsync(Model, Prompts.BugFixer, prompt, ct);
+        return provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.BugFixer, prompt), ct);
     }
 
     public IAsyncEnumerable<string> ReviewCodeAsync(string code, CancellationToken ct = default)
     {
         var prompt = $"Please perform a thorough production-readiness review of this code:\n\n```\n{code}\n```";
-        return ollama.StreamCompletionAsync(Model, Prompts.CodeReviewer, prompt, ct);
+        return provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.CodeReviewer, prompt), ct);
     }
 
     public IAsyncEnumerable<string> ExplainCodeAsync(string code, CancellationToken ct = default)
     {
         var prompt = $"Explain the following code in detail:\n\n```\n{code}\n```";
-        return ollama.StreamCompletionAsync(Model, Prompts.CodeExplainer, prompt, ct);
+        return provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.CodeExplainer, prompt), ct);
     }
 
     public IAsyncEnumerable<string> ChatAsync(
@@ -151,6 +178,12 @@ public class CodeAssistantService(OllamaService ollama, string model)
             ? message
             : $"{historyText}\n\n[USER]: {message}";
 
-        return ollama.StreamCompletionAsync(Model, Prompts.ChatAssistant, fullPrompt, ct);
+        return provider.StreamCompletionAsync(new ModelRequest(Model, Prompts.ChatAssistant, fullPrompt), ct);
     }
+
+    public IAsyncEnumerable<string> AskWithPromptAsync(string systemPrompt, string prompt, CancellationToken ct = default) =>
+        provider.StreamCompletionAsync(new ModelRequest(Model, systemPrompt, prompt), ct);
+
+    public Task<string> CompleteWithPromptAsync(string systemPrompt, string prompt, CancellationToken ct = default) =>
+        provider.CompleteAsync(new ModelRequest(Model, systemPrompt, prompt, Stream: false), ct);
 }

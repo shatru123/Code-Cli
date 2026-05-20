@@ -143,7 +143,7 @@ public static class ConsoleUI
 
     // ── Table helpers ─────────────────────────────────────────────────────────
 
-    public static void PrintModelTable(List<string> models)
+    public static void PrintModelTable(IReadOnlyList<string> models)
     {
         Console.WriteLine($"  {Bold}{"Model Name",-40} {"Status",-12}{Reset}");
         Console.WriteLine($"  {Gray}{new string('─', 54)}{Reset}");
@@ -170,9 +170,13 @@ public static class ConsoleUI
             ("ask",     "<question>",               "Ask a single coding question"),
             ("write",   "<description>",            "Generate production-ready code"),
             ("fix",     "<file> [--error <msg>]",   "Fix bugs in a source file"),
+            ("diagnose","[file]",                   "Diagnose a file or the current repository"),
+            ("optimize","[file]",                   "Optimize a file or the current repository"),
+            ("architecture","",                     "Explain the current repository architecture"),
             ("review",  "<file>",                   "Full production-readiness code review"),
             ("explain", "<file>",                   "Get a detailed explanation of code"),
-            ("models",  "",                         "List installed Ollama models"),
+            ("models",  "",                         "List models from the active provider"),
+            ("provider","",                         "Show active provider and endpoint"),
             ("config",  "",                         "Show / edit current configuration"),
         };
 
@@ -183,8 +187,10 @@ public static class ConsoleUI
 
         Console.WriteLine();
         Console.WriteLine($"  {Bold}OPTIONS{Reset}");
+        Console.WriteLine($"    {Yellow}--provider <name>{Reset}   Provider: ollama | openai-compatible | llama.cpp");
         Console.WriteLine($"    {Yellow}--model   <name>{Reset}     Override the AI model (default: qwen2.5-coder:7b)");
-        Console.WriteLine($"    {Yellow}--host    <url>{Reset}      Ollama host (default: http://localhost:11434)");
+        Console.WriteLine($"    {Yellow}--host    <url>{Reset}      Backward-compatible alias for provider endpoint");
+        Console.WriteLine($"    {Yellow}--endpoint <url>{Reset}     Provider endpoint (default: http://localhost:11434)");
         Console.WriteLine($"    {Yellow}--runtime <type>{Reset}     Ollama runtime: local or docker");
         Console.WriteLine($"    {Yellow}--output  <file>{Reset}     Save response to file");
         Console.WriteLine($"    {Yellow}--no-stream{Reset}          Wait for full response before printing");
@@ -194,9 +200,13 @@ public static class ConsoleUI
         Console.WriteLine($"    {Gray}code-cli ask \"How do I implement a generic repository in C#?\"{Reset}");
         Console.WriteLine($"    {Gray}code-cli write \"REST API with JWT auth in ASP.NET Core\"{Reset}");
         Console.WriteLine($"    {Gray}code-cli fix MyService.cs --error \"NullReferenceException at line 42\"{Reset}");
+        Console.WriteLine($"    {Gray}code-cli diagnose{Reset}");
+        Console.WriteLine($"    {Gray}code-cli architecture{Reset}");
+        Console.WriteLine($"    {Gray}code-cli optimize src/Services/OllamaService.cs{Reset}");
         Console.WriteLine($"    {Gray}code-cli review Controllers/AuthController.cs{Reset}");
         Console.WriteLine($"    {Gray}code-cli explain Program.cs{Reset}");
         Console.WriteLine($"    {Gray}code-cli models{Reset}");
+        Console.WriteLine($"    {Gray}code-cli provider{Reset}");
         Console.WriteLine($"    {Gray}code-cli ask \"Explain LINQ joins\" --runtime docker{Reset}");
         Console.WriteLine();
         Console.WriteLine($"  {Bold}SETUP{Reset}");

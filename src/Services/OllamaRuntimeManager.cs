@@ -39,7 +39,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
                 ct,
                 "run", "-d",
                 "--name", _config.DockerContainerName,
-                "-p", $"{ResolveHostPort(_config.Host)}:11434",
+                "-p", $"{ResolveHostPort(_config.Endpoint)}:11434",
                 "-v", $"{_config.DockerVolume}:/root/.ollama",
                 _config.DockerImage);
 
@@ -83,7 +83,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
         return
         [
             "1. Install Docker Desktop or Docker Engine",
-            $"2. Start the container: docker run -d --name {_config.DockerContainerName} -p {ResolveHostPort(_config.Host)}:11434 -v {_config.DockerVolume}:/root/.ollama {_config.DockerImage}",
+            $"2. Start the container: docker run -d --name {_config.DockerContainerName} -p {ResolveHostPort(_config.Endpoint)}:11434 -v {_config.DockerVolume}:/root/.ollama {_config.DockerImage}",
             $"3. Pull a model inside the container: docker exec -it {_config.DockerContainerName} ollama pull qwen2.5-coder:7b"
         ];
     }
@@ -105,7 +105,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
         {
             try
             {
-                var response = await http.GetFromJsonAsync<OllamaModelsResponse>($"{_config.Host.TrimEnd('/')}/api/tags", ct);
+                var response = await http.GetFromJsonAsync<OllamaModelsResponse>($"{_config.Endpoint.TrimEnd('/')}/api/tags", ct);
                 if (response is not null)
                     return RuntimePreparationResult.Ok(readyMessage);
             }
@@ -117,7 +117,7 @@ public sealed class OllamaRuntimeManager(AppConfig config)
         }
 
         return RuntimePreparationResult.Failure(
-            $"The Docker container started, but Ollama did not become ready at {_config.Host} within 30 seconds.");
+            $"The Docker container started, but Ollama did not become ready at {_config.Endpoint} within 30 seconds.");
     }
 
     private static async Task<CommandResult> RunDockerAsync(CancellationToken ct, params string[] args)

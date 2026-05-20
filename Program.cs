@@ -1,4 +1,5 @@
 using CodeCli.Commands;
+using CodeCli.Providers;
 using CodeCli.Services;
 using CodeCli.UI;
 
@@ -17,6 +18,8 @@ Console.CancelKeyPress += (_, e) =>
 
 string? modelOverride   = GetFlag(args, "--model");
 string? hostOverride    = GetFlag(args, "--host");
+string? endpointOverride = GetFlag(args, "--endpoint");
+string? providerOverride = GetFlag(args, "--provider");
 string? outputFile      = GetFlag(args, "--output");
 string? runtimeOverride = GetFlag(args, "--runtime");
 bool    noStream        = args.Contains("--no-stream");
@@ -29,7 +32,9 @@ var cleanArgs = StripFlags(args);
 
 var config = ConfigManager.Load();
 if (modelOverride  is not null) config.Model  = modelOverride;
-if (hostOverride   is not null) config.Host   = hostOverride;
+if (hostOverride   is not null) { config.Host = hostOverride; config.Endpoint = hostOverride; }
+if (endpointOverride is not null) { config.Endpoint = endpointOverride; config.Host = endpointOverride; }
+if (providerOverride is not null) config.Provider = ConfigManager.NormalizeProvider(providerOverride);
 if (runtimeOverride is not null) config.Runtime = ConfigManager.NormalizeRuntime(runtimeOverride);
 if (noStream)                   config.Stream = false;
 
@@ -43,6 +48,7 @@ if (cleanArgs.Length == 0)
 
 var command = cleanArgs[0].ToLowerInvariant();
 var runtime = new OllamaRuntimeManager(config);
+var providerRegistry = new ModelProviderRegistry(config);
 
 // ── Special commands (no Ollama needed) ──────────────────────────────────────
 
@@ -69,17 +75,19 @@ if (command is "config")
 
 if (command is "explain-project")
 {
-    var projectCommand = new ExplainProjectCommand();
+    var explainProjectProvider = providerRegistry.CreateActiveProvider();
+    var explainProjectAssistant = new CodeAssistantService(explainProjectProvider, config.Model);
+    var explainProjectAgent = new AutonomousCodingAgent(
+        explainProjectAssistant,
+        new CodeContextBuilder(new RepositoryScanner(), new CSharpProjectAnalyzer()));
+    var projectCommand = new ExplainProjectCommand(explainProjectAssistant, explainProjectAgent);
     await projectCommand.ExecuteAsync(cts.Token);
     return 0;
 }
 
-// ── Verify Ollama is running ──────────────────────────────────────────────────
+// ── Verify provider is running ────────────────────────────────────────────────
 
-var ollama    = new OllamaService(config.Host);
-var assistant = new CodeAssistantService(ollama, config.Model);
-
-if (runtime.UsesDocker)
+if (config.Provider == "ollama" && runtime.UsesDocker)
 {
     var preparation = await ConsoleUI.WithSpinnerAsync(
         "Preparing Ollama Docker runtime",
@@ -101,19 +109,27 @@ if (runtime.UsesDocker)
         ConsoleUI.Info(preparation.Message);
 }
 
+var provider = providerRegistry.CreateActiveProvider();
+var assistant = new CodeAssistantService(provider, config.Model);
+var agent = new AutonomousCodingAgent(
+    assistant,
+    new CodeContextBuilder(new RepositoryScanner(), new CSharpProjectAnalyzer()));
+
 if (command is "models")
 {
     ConsoleUI.SectionHeader("INSTALLED MODELS");
     var models = await ConsoleUI.WithSpinnerAsync(
         "Fetching models",
-        () => ollama.GetAvailableModelsAsync(),
+        () => provider.GetAvailableModelsAsync(cts.Token),
         cts.Token);
 
     if (models.Count == 0)
     {
-        var installCommand = runtime.UsesDocker
+        var installCommand = config.Provider == "ollama" && runtime.UsesDocker
             ? $"docker exec -it {config.DockerContainerName} ollama pull qwen2.5-coder:7b"
-            : "ollama pull qwen2.5-coder:7b";
+            : config.Provider == "ollama"
+                ? "ollama pull qwen2.5-coder:7b"
+                : "Use your provider's model management workflow to install a model.";
         ConsoleUI.Warning($"No models found. Install one with: {installCommand}");
     }
     else
@@ -125,25 +141,41 @@ if (command is "models")
     return 0;
 }
 
-// For all AI commands, ensure Ollama is available
-bool ollamaRunning = await ConsoleUI.WithSpinnerAsync(
-    "Connecting to Ollama",
-    () => ollama.IsRunningAsync(),
+if (command is "provider")
+{
+    var providerCommand = new ProviderCommand();
+    providerCommand.Execute(assistant.ProviderName, assistant.Endpoint, assistant.Model, providerRegistry.GetAvailableProviders());
+    return 0;
+}
+
+// For all AI commands, ensure provider is available
+bool providerAvailable = await ConsoleUI.WithSpinnerAsync(
+    $"Connecting to {assistant.ProviderName}",
+    () => provider.IsAvailableAsync(cts.Token),
     cts.Token);
 
-if (!ollamaRunning)
+if (!providerAvailable)
 {
-    ConsoleUI.Error($"Cannot connect to Ollama at {config.Host}");
+    ConsoleUI.Error($"Cannot connect to {assistant.ProviderName} at {assistant.Endpoint}");
     Console.WriteLine();
     Console.WriteLine("  To fix this:");
-    foreach (var step in runtime.GetStartupHelp())
-        Console.WriteLine($"  {step}");
+    if (config.Provider == "ollama")
+    {
+        foreach (var step in runtime.GetStartupHelp())
+            Console.WriteLine($"  {step}");
+    }
+    else
+    {
+        Console.WriteLine("  1. Verify the endpoint is correct");
+        Console.WriteLine("  2. Verify the provider server is running");
+        Console.WriteLine("  3. Verify the selected model exists on the target endpoint");
+    }
     Console.WriteLine();
     return 1;
 }
 
 if (verbose)
-    ConsoleUI.Success($"Connected to Ollama at {config.Host} | Model: {config.Model}");
+    ConsoleUI.Success($"Connected to {assistant.ProviderName} at {assistant.Endpoint} | Model: {config.Model}");
 
 // ── Route to commands ─────────────────────────────────────────────────────────
 
@@ -200,6 +232,29 @@ try
             var errMsg     = GetFlag(args, "--error");
             var cmd        = new FixCommand(assistant);
             await cmd.ExecuteAsync(filePath, errMsg, outputFile, cts.Token);
+            break;
+        }
+
+        case "diagnose":
+        {
+            var targetPath = cleanArgs.Length >= 2 ? cleanArgs[1] : null;
+            var cmd = new DiagnoseCommand(assistant, agent);
+            await cmd.ExecuteAsync(targetPath, outputFile, cts.Token);
+            break;
+        }
+
+        case "optimize":
+        {
+            var targetPath = cleanArgs.Length >= 2 ? cleanArgs[1] : null;
+            var cmd = new OptimizeCommand(assistant, agent);
+            await cmd.ExecuteAsync(targetPath, outputFile, cts.Token);
+            break;
+        }
+
+        case "architecture":
+        {
+            var cmd = new ArchitectureCommand(assistant, agent);
+            await cmd.ExecuteAsync(outputFile, cts.Token);
             break;
         }
 
@@ -263,7 +318,7 @@ static string? GetFlag(string[] args, string flag)
 static string[] StripFlags(string[] args)
 {
     var result = new List<string>();
-    var flagsWithValues = new HashSet<string> { "--model", "--host", "--output", "--error", "--runtime" };
+    var flagsWithValues = new HashSet<string> { "--model", "--host", "--endpoint", "--provider", "--output", "--error", "--runtime" };
 
     for (int i = 0; i < args.Length; i++)
     {

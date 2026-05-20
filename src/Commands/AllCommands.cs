@@ -52,6 +52,8 @@ public abstract class CommandBase(CodeAssistantService assistant)
             return null;
         }
     }
+
+    protected static string GetRepositoryRoot() => Directory.GetCurrentDirectory();
 }
 
 // ── ask command ───────────────────────────────────────────────────────────────
@@ -143,6 +145,88 @@ public class ExplainCommand(CodeAssistantService assistant) : CommandBase(assist
     }
 }
 
+public class DiagnoseCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
+{
+    private readonly AutonomousCodingAgent _agent = agent;
+
+    public async Task ExecuteAsync(string? targetPath, string? outputFile, CancellationToken ct = default)
+    {
+        ConsoleUI.SectionHeader($"DIAGNOSE → {(targetPath is null ? "repository" : Path.GetFileName(targetPath))}");
+        var root = GetRepositoryRoot();
+
+        if (string.IsNullOrWhiteSpace(targetPath))
+        {
+            await StreamToConsoleAsync(_agent.DiagnoseRepositoryAsync(root, 8, ct), outputFile, ct);
+            return;
+        }
+
+        var code = ReadFileOrNull(targetPath);
+        if (code is null) return;
+
+        var prompt = $"Diagnose the risks, bugs, and production issues in this file:\n\n```{Path.GetExtension(targetPath)}\n{code}\n```";
+        await StreamToConsoleAsync(Assistant.AskWithPromptAsync(Prompts.RepositoryDiagnostician, prompt, ct), outputFile, ct);
+    }
+}
+
+public class OptimizeCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
+{
+    private readonly AutonomousCodingAgent _agent = agent;
+
+    public async Task ExecuteAsync(string? targetPath, string? outputFile, CancellationToken ct = default)
+    {
+        ConsoleUI.SectionHeader($"OPTIMIZE → {(targetPath is null ? "repository" : Path.GetFileName(targetPath))}");
+        var root = GetRepositoryRoot();
+
+        if (string.IsNullOrWhiteSpace(targetPath))
+        {
+            await StreamToConsoleAsync(_agent.OptimizeRepositoryAsync(root, 8, ct), outputFile, ct);
+            return;
+        }
+
+        var code = ReadFileOrNull(targetPath);
+        if (code is null) return;
+
+        var prompt = $"Optimize the following code for maintainability, performance, and reliability:\n\n```{Path.GetExtension(targetPath)}\n{code}\n```";
+        await StreamToConsoleAsync(Assistant.AskWithPromptAsync(Prompts.Optimizer, prompt, ct), outputFile, ct);
+    }
+}
+
+public class ArchitectureCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
+{
+    private readonly AutonomousCodingAgent _agent = agent;
+
+    public async Task ExecuteAsync(string? outputFile, CancellationToken ct = default)
+    {
+        ConsoleUI.SectionHeader("ARCHITECTURE → repository");
+        await StreamToConsoleAsync(_agent.ExplainArchitectureAsync(GetRepositoryRoot(), 8, ct), outputFile, ct);
+    }
+}
+
+public class ProviderCommand
+{
+    public void Execute(string activeProvider, string endpoint, string model, IReadOnlyList<string> supportedProviders)
+    {
+        ConsoleUI.SectionHeader("PROVIDER STATUS");
+        Console.WriteLine($"  Active provider : {activeProvider}");
+        Console.WriteLine($"  Endpoint        : {endpoint}");
+        Console.WriteLine($"  Model           : {model}");
+        Console.WriteLine($"  Supported       : {string.Join(", ", supportedProviders)}");
+        Console.WriteLine();
+        ConsoleUI.Info("Change provider in ~/.code-cli/config.json or with --provider.");
+    }
+}
+
+public class ExplainProjectCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
+{
+    private readonly AutonomousCodingAgent _agent = agent;
+
+    public async Task ExecuteAsync(CancellationToken ct = default)
+    {
+        ConsoleUI.SectionHeader("EXPLAIN PROJECT");
+        await StreamToConsoleAsync(_agent.ExplainArchitectureAsync(GetRepositoryRoot(), 8, ct), null, ct);
+    }
+}
+
 // ── chat command (interactive REPL) ──────────────────────────────────────────
 
 public class ChatCommand : CommandBase
@@ -153,7 +237,7 @@ public class ChatCommand : CommandBase
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
         ConsoleUI.PrintBanner();
-        ConsoleUI.Info($"Model: {_chat.Model}   |   Type 'exit' or 'quit' to leave, 'clear' to reset chat");
+        ConsoleUI.Info($"Provider: {_chat.ProviderName}   |   Model: {_chat.Model}   |   Type 'exit' or 'quit' to leave, 'clear' to reset chat");
         ConsoleUI.Info("Commands: /fix <file>  /review <file>  /explain <file>  /model <name>");
         ConsoleUI.Separator();
 
