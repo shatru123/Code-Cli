@@ -67,6 +67,13 @@ if (command is "config")
     return 0;
 }
 
+if (command is "explain-project")
+{
+    var projectCommand = new ExplainProjectCommand();
+    await projectCommand.ExecuteAsync(cts.Token);
+    return 0;
+}
+
 // ── Verify Ollama is running ──────────────────────────────────────────────────
 
 var ollama    = new OllamaService(config.Host);
@@ -146,7 +153,6 @@ try
 {
     switch (command)
     {
-        // ── chat ─────────────────────────────────────────────────────────────
         case "chat":
         {
             var cmd = new ChatCommand(assistant);
@@ -154,30 +160,25 @@ try
             break;
         }
 
-        // ── ask ──────────────────────────────────────────────────────────────
         case "ask":
         {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli ask <question>");
-                ConsoleUI.Error("Example: code-cli ask \"How do I implement dependency injection in .NET?\"");
                 exitCode = 1; break;
             }
 
-            // Join remaining args as question (no need for quotes)
             var question = string.Join(" ", cleanArgs[1..]);
             var cmd = new AskCommand(assistant);
             await cmd.ExecuteAsync(question, outputFile, cts.Token);
             break;
         }
 
-        // ── write ────────────────────────────────────────────────────────────
         case "write":
         {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli write <description>");
-                ConsoleUI.Error("Example: code-cli write \"JWT authentication middleware in ASP.NET Core\"");
                 exitCode = 1; break;
             }
 
@@ -187,13 +188,11 @@ try
             break;
         }
 
-        // ── fix ──────────────────────────────────────────────────────────────
         case "fix":
         {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli fix <file> [--error <message>]");
-                ConsoleUI.Error("Example: code-cli fix MyService.cs --error \"NullReferenceException at line 42\"");
                 exitCode = 1; break;
             }
 
@@ -204,13 +203,11 @@ try
             break;
         }
 
-        // ── review ───────────────────────────────────────────────────────────
         case "review":
         {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli review <file>");
-                ConsoleUI.Error("Example: code-cli review Controllers/UserController.cs");
                 exitCode = 1; break;
             }
 
@@ -219,13 +216,11 @@ try
             break;
         }
 
-        // ── explain ──────────────────────────────────────────────────────────
         case "explain":
         {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli explain <file>");
-                ConsoleUI.Error("Example: code-cli explain Program.cs");
                 exitCode = 1; break;
             }
 
@@ -234,7 +229,6 @@ try
             break;
         }
 
-        // ── unknown ───────────────────────────────────────────────────────────
         default:
         {
             ConsoleUI.Error($"Unknown command: '{command}'");
@@ -260,8 +254,6 @@ catch (Exception ex)
 Console.WriteLine();
 return exitCode;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 static string? GetFlag(string[] args, string flag)
 {
     var idx = Array.IndexOf(args, flag);
@@ -277,11 +269,14 @@ static string[] StripFlags(string[] args)
     {
         if (flagsWithValues.Contains(args[i]))
         {
-            i++; // skip flag value
+            i++;
             continue;
         }
+
         if (args[i].StartsWith("--")) continue;
+
         result.Add(args[i]);
     }
+
     return result.ToArray();
 }
