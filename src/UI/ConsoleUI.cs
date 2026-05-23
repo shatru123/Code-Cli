@@ -72,13 +72,13 @@ public static class ConsoleUI
     {
         Console.WriteLine();
         Console.WriteLine($"{Bold}{Yellow}  {title}{Reset}");
-        Console.WriteLine($"{Gray}  {new string('─', Math.Min(Console.WindowWidth - 4, 70))}{Reset}");
+        Console.WriteLine($"{Gray}  {new string('─', Math.Max(10, Math.Min(Console.WindowWidth - 4, 70)))}{Reset}");
         Console.WriteLine();
     }
 
     public static void Separator()
     {
-        Console.WriteLine($"\n{Gray}{new string('─', Math.Min(Console.WindowWidth - 2, 72))}{Reset}\n");
+        Console.WriteLine($"\n{Gray}{new string('─', Math.Max(10, Math.Min(Console.WindowWidth - 2, 72)))}{Reset}\n");
     }
 
     // ── Spinner ───────────────────────────────────────────────────────────────
