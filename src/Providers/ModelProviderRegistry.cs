@@ -8,17 +8,15 @@ public sealed class ModelProviderRegistry(AppConfig config)
 
     public IModelProvider CreateActiveProvider()
     {
-        var provider = _config.Provider.ToLowerInvariant();
-
-        return provider switch
+        return _config.Provider.ToLowerInvariant() switch
         {
-            "ollama" => new OllamaModelProvider(_config.Endpoint),
-            "openai-compatible" => new OpenAiCompatibleModelProvider(_config.Endpoint, _config.ApiKey),
-            "llama.cpp" => new LlamaCppModelProvider(_config.Endpoint),
-            _ => new OllamaModelProvider(_config.Endpoint)
+            "claude"             => new ClaudeModelProvider(_config.AnthropicApiKey ?? _config.ApiKey ?? string.Empty),
+            "openai-compatible"  => new OpenAiCompatibleModelProvider(_config.Endpoint, _config.ApiKey),
+            "llama.cpp"          => new LlamaCppModelProvider(_config.Endpoint),
+            _                    => new OllamaModelProvider(_config.Endpoint)   // "ollama" + default
         };
     }
 
     public IReadOnlyList<string> GetAvailableProviders() =>
-        ["ollama", "openai-compatible", "llama.cpp"];
+        ["ollama", "claude", "openai-compatible", "llama.cpp"];
 }

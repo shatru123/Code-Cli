@@ -41,109 +41,151 @@ public abstract class CommandBase(CodeAssistantService assistant)
             ConsoleUI.Error($"File not found: {path}");
             return null;
         }
-
-        try
-        {
-            return File.ReadAllText(path);
-        }
-        catch (Exception ex)
-        {
-            ConsoleUI.Error($"Cannot read file: {ex.Message}");
-            return null;
-        }
+        try   { return File.ReadAllText(path); }
+        catch (Exception ex) { ConsoleUI.Error($"Cannot read file: {ex.Message}"); return null; }
     }
 
     protected static string GetRepositoryRoot() => Directory.GetCurrentDirectory();
 }
 
-// ── ask command ───────────────────────────────────────────────────────────────
+// ── ask ───────────────────────────────────────────────────────────────────────
 
 public class AskCommand(CodeAssistantService assistant) : CommandBase(assistant)
 {
-    public async Task ExecuteAsync(
-        string question,
-        string? outputFile,
-        CancellationToken ct = default)
+    public async Task ExecuteAsync(string question, string? outputFile, CancellationToken ct = default)
     {
         ConsoleUI.SectionHeader($"ASK → {question.Truncate(60)}");
-        var stream = Assistant.AskAsync(question, ct);
-        await StreamToConsoleAsync(stream, outputFile, ct);
+        await StreamToConsoleAsync(Assistant.AskAsync(question, ct), outputFile, ct);
     }
 }
 
-// ── write command ─────────────────────────────────────────────────────────────
+// ── write ─────────────────────────────────────────────────────────────────────
 
 public class WriteCommand(CodeAssistantService assistant) : CommandBase(assistant)
 {
-    public async Task ExecuteAsync(
-        string description,
-        string? outputFile,
-        CancellationToken ct = default)
+    public async Task ExecuteAsync(string description, string? outputFile, CancellationToken ct = default)
     {
         ConsoleUI.SectionHeader($"WRITE → {description.Truncate(60)}");
-        var stream = Assistant.WriteCodeAsync(description, ct);
-        await StreamToConsoleAsync(stream, outputFile, ct);
+        await StreamToConsoleAsync(Assistant.WriteCodeAsync(description, ct), outputFile, ct);
     }
 }
 
-// ── fix command ───────────────────────────────────────────────────────────────
+// ── fix ───────────────────────────────────────────────────────────────────────
 
 public class FixCommand(CodeAssistantService assistant) : CommandBase(assistant)
 {
     public async Task ExecuteAsync(
-        string filePath,
-        string? errorMessage,
-        string? outputFile,
-        CancellationToken ct = default)
+        string filePath, string? errorMessage, string? outputFile, CancellationToken ct = default)
     {
         var code = ReadFileOrNull(filePath);
         if (code is null) return;
 
         ConsoleUI.SectionHeader($"FIX → {Path.GetFileName(filePath)}");
-
         if (!string.IsNullOrWhiteSpace(errorMessage))
             ConsoleUI.Info($"Error context: {errorMessage}");
 
-        var stream = Assistant.FixCodeAsync(code, errorMessage, ct);
-        await StreamToConsoleAsync(stream, outputFile, ct);
+        await StreamToConsoleAsync(Assistant.FixCodeAsync(code, errorMessage, ct), outputFile, ct);
     }
 }
 
-// ── review command ────────────────────────────────────────────────────────────
+// ── review ────────────────────────────────────────────────────────────────────
 
 public class ReviewCommand(CodeAssistantService assistant) : CommandBase(assistant)
 {
-    public async Task ExecuteAsync(
-        string filePath,
-        string? outputFile,
-        CancellationToken ct = default)
+    public async Task ExecuteAsync(string filePath, string? outputFile, CancellationToken ct = default)
     {
         var code = ReadFileOrNull(filePath);
         if (code is null) return;
 
         ConsoleUI.SectionHeader($"REVIEW → {Path.GetFileName(filePath)}");
-        var stream = Assistant.ReviewCodeAsync(code, ct);
-        await StreamToConsoleAsync(stream, outputFile, ct);
+        await StreamToConsoleAsync(Assistant.ReviewCodeAsync(code, ct), outputFile, ct);
     }
 }
 
-// ── explain command ───────────────────────────────────────────────────────────
+// ── explain ───────────────────────────────────────────────────────────────────
 
 public class ExplainCommand(CodeAssistantService assistant) : CommandBase(assistant)
 {
-    public async Task ExecuteAsync(
-        string filePath,
-        string? outputFile,
-        CancellationToken ct = default)
+    public async Task ExecuteAsync(string filePath, string? outputFile, CancellationToken ct = default)
     {
         var code = ReadFileOrNull(filePath);
         if (code is null) return;
 
         ConsoleUI.SectionHeader($"EXPLAIN → {Path.GetFileName(filePath)}");
-        var stream = Assistant.ExplainCodeAsync(code, ct);
-        await StreamToConsoleAsync(stream, outputFile, ct);
+        await StreamToConsoleAsync(Assistant.ExplainCodeAsync(code, ct), outputFile, ct);
     }
 }
+
+// ── refactor ──────────────────────────────────────────────────────────────────
+
+public class RefactorCommand(CodeAssistantService assistant) : CommandBase(assistant)
+{
+    public async Task ExecuteAsync(
+        string filePath, string goal, string? outputFile, CancellationToken ct = default)
+    {
+        var code = ReadFileOrNull(filePath);
+        if (code is null) return;
+
+        ConsoleUI.SectionHeader($"REFACTOR → {Path.GetFileName(filePath)}");
+        ConsoleUI.Info($"Goal: {goal}");
+        await StreamToConsoleAsync(Assistant.RefactorCodeAsync(code, goal, ct), outputFile, ct);
+    }
+}
+
+// ── test ──────────────────────────────────────────────────────────────────────
+
+public class TestCommand(CodeAssistantService assistant) : CommandBase(assistant)
+{
+    public async Task ExecuteAsync(
+        string filePath, string? framework, string? outputFile, CancellationToken ct = default)
+    {
+        var code = ReadFileOrNull(filePath);
+        if (code is null) return;
+
+        ConsoleUI.SectionHeader($"TEST → {Path.GetFileName(filePath)}");
+        if (framework is not null) ConsoleUI.Info($"Framework: {framework}");
+        await StreamToConsoleAsync(Assistant.WriteTestsAsync(code, framework, ct), outputFile, ct);
+    }
+}
+
+// ── analyse (file or whole project) ──────────────────────────────────────────
+
+public class AnalyseCommand(CodeAssistantService assistant) : CommandBase(assistant)
+{
+    public async Task ExecuteAsync(
+        string targetPath, string? focus, string? outputFile, CancellationToken ct = default)
+    {
+        string context;
+        string header;
+
+        if (File.Exists(targetPath))
+        {
+            var code = ReadFileOrNull(targetPath);
+            if (code is null) return;
+            context = ProjectContextBuilder.BuildFileContext(targetPath);
+            header  = $"ANALYSE → {Path.GetFileName(targetPath)}";
+        }
+        else if (Directory.Exists(targetPath))
+        {
+            header  = $"ANALYSE PROJECT → {Path.GetFullPath(targetPath)}";
+            context = await ConsoleUI.WithSpinnerAsync(
+                "Scanning codebase",
+                () => Task.FromResult(ProjectContextBuilder.BuildProjectContext(targetPath, focus)),
+                ct);
+        }
+        else
+        {
+            ConsoleUI.Error($"Path not found: {targetPath}");
+            return;
+        }
+
+        ConsoleUI.SectionHeader(header);
+        if (focus is not null) ConsoleUI.Info($"Focus: {focus}");
+        await StreamToConsoleAsync(Assistant.AnalyseProjectAsync(context, ct), outputFile, ct);
+    }
+}
+
+// ── diagnose ──────────────────────────────────────────────────────────────────
 
 public class DiagnoseCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
 {
@@ -168,6 +210,8 @@ public class DiagnoseCommand(CodeAssistantService assistant, AutonomousCodingAge
     }
 }
 
+// ── optimize ──────────────────────────────────────────────────────────────────
+
 public class OptimizeCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
 {
     private readonly AutonomousCodingAgent _agent = agent;
@@ -186,10 +230,12 @@ public class OptimizeCommand(CodeAssistantService assistant, AutonomousCodingAge
         var code = ReadFileOrNull(targetPath);
         if (code is null) return;
 
-        var prompt = $"Optimize the following code for maintainability, performance, and reliability:\n\n```{Path.GetExtension(targetPath)}\n{code}\n```";
+        var prompt = $"Optimise the following code for maintainability, performance, and reliability:\n\n```{Path.GetExtension(targetPath)}\n{code}\n```";
         await StreamToConsoleAsync(Assistant.AskWithPromptAsync(Prompts.Optimizer, prompt, ct), outputFile, ct);
     }
 }
+
+// ── architecture ──────────────────────────────────────────────────────────────
 
 public class ArchitectureCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
 {
@@ -202,6 +248,8 @@ public class ArchitectureCommand(CodeAssistantService assistant, AutonomousCodin
     }
 }
 
+// ── provider ──────────────────────────────────────────────────────────────────
+
 public class ProviderCommand
 {
     public void Execute(string activeProvider, string endpoint, string model, IReadOnlyList<string> supportedProviders)
@@ -212,9 +260,12 @@ public class ProviderCommand
         Console.WriteLine($"  Model           : {model}");
         Console.WriteLine($"  Supported       : {string.Join(", ", supportedProviders)}");
         Console.WriteLine();
-        ConsoleUI.Info("Change provider in ~/.code-cli/config.json or with --provider.");
+        ConsoleUI.Info("Switch provider:  code-cli config --set-provider <name>");
+        ConsoleUI.Info("Set Claude key:   code-cli config --set-key sk-ant-...");
     }
 }
+
+// ── explain-project ───────────────────────────────────────────────────────────
 
 public class ExplainProjectCommand(CodeAssistantService assistant, AutonomousCodingAgent agent) : CommandBase(assistant)
 {
@@ -227,7 +278,7 @@ public class ExplainProjectCommand(CodeAssistantService assistant, AutonomousCod
     }
 }
 
-// ── chat command (interactive REPL) ──────────────────────────────────────────
+// ── chat ──────────────────────────────────────────────────────────────────────
 
 public class ChatCommand : CommandBase
 {
@@ -237,8 +288,8 @@ public class ChatCommand : CommandBase
     public async Task ExecuteAsync(CancellationToken ct = default)
     {
         ConsoleUI.PrintBanner();
-        ConsoleUI.Info($"Provider: {_chat.ProviderName}   |   Model: {_chat.Model}   |   Type 'exit' or 'quit' to leave, 'clear' to reset chat");
-        ConsoleUI.Info("Commands: /fix <file>  /review <file>  /explain <file>  /model <name>");
+        ConsoleUI.Info($"Provider: {_chat.ProviderName}   |   Model: {_chat.Model}   |   Type 'exit' to leave, 'clear' to reset");
+        ConsoleUI.Info("Slash commands: /fix  /review  /explain  /refactor  /test  /analyse  /model  /help");
         ConsoleUI.Separator();
 
         var history = new List<(string role, string content)>();
@@ -248,7 +299,6 @@ public class ChatCommand : CommandBase
             Console.WriteLine();
             ConsoleUI.UserPrefix();
             var input = Console.ReadLine()?.Trim();
-
             if (string.IsNullOrWhiteSpace(input)) continue;
 
             if (input is "exit" or "quit" or "/exit" or "/quit")
@@ -268,25 +318,41 @@ public class ChatCommand : CommandBase
 
             if (input.StartsWith("/fix "))
             {
-                var path = input[5..].Trim();
-                var fixCmd = new FixCommand(_chat);
-                await fixCmd.ExecuteAsync(path, null, null, ct);
+                await new FixCommand(_chat).ExecuteAsync(input[5..].Trim(), null, null, ct);
                 continue;
             }
 
             if (input.StartsWith("/review "))
             {
-                var path = input[8..].Trim();
-                var reviewCmd = new ReviewCommand(_chat);
-                await reviewCmd.ExecuteAsync(path, null, ct);
+                await new ReviewCommand(_chat).ExecuteAsync(input[8..].Trim(), null, ct);
                 continue;
             }
 
             if (input.StartsWith("/explain "))
             {
-                var path = input[9..].Trim();
-                var explainCmd = new ExplainCommand(_chat);
-                await explainCmd.ExecuteAsync(path, null, ct);
+                await new ExplainCommand(_chat).ExecuteAsync(input[9..].Trim(), null, ct);
+                continue;
+            }
+
+            if (input.StartsWith("/refactor "))
+            {
+                var parts = input[10..].Split(" --goal ", 2, StringSplitOptions.TrimEntries);
+                var path  = parts[0];
+                var goal  = parts.Length > 1 ? parts[1] : "improve readability and apply SOLID principles";
+                await new RefactorCommand(_chat).ExecuteAsync(path, goal, null, ct);
+                continue;
+            }
+
+            if (input.StartsWith("/test "))
+            {
+                await new TestCommand(_chat).ExecuteAsync(input[6..].Trim(), null, null, ct);
+                continue;
+            }
+
+            if (input.StartsWith("/analyse ") || input.StartsWith("/analyze "))
+            {
+                var path = input.StartsWith("/analyse ") ? input[9..].Trim() : input[9..].Trim();
+                await new AnalyseCommand(_chat).ExecuteAsync(path, null, null, ct);
                 continue;
             }
 
@@ -305,7 +371,7 @@ public class ChatCommand : CommandBase
 
             if (input is "/help" or "help")
             {
-                ConsoleUI.Info("Commands: /fix <file>  /review <file>  /explain <file>  /model <name>  clear  exit");
+                PrintChatHelp();
                 continue;
             }
 
@@ -313,7 +379,7 @@ public class ChatCommand : CommandBase
             Console.WriteLine();
             try
             {
-                var stream = _chat.ChatAsync(input, history, ct);
+                var stream          = _chat.ChatAsync(input, history, ct);
                 var responseBuilder = new System.Text.StringBuilder();
 
                 ConsoleUI.AssistantPrefix();
@@ -324,13 +390,10 @@ public class ChatCommand : CommandBase
                     ConsoleUI.StreamToken(token);
                     responseBuilder.Append(token);
                 }
-
                 Console.WriteLine();
 
-                var response = responseBuilder.ToString();
-
-                history.Add(("user", input));
-                history.Add(("assistant", response));
+                history.Add(("user",      input));
+                history.Add(("assistant", responseBuilder.ToString()));
 
                 if (history.Count > 20)
                     history = history.TakeLast(20).ToList();
@@ -342,9 +405,28 @@ public class ChatCommand : CommandBase
             }
         }
     }
+
+    private static void PrintChatHelp()
+    {
+        Console.WriteLine();
+        var cmds = new (string cmd, string desc)[]
+        {
+            ("/fix <file>",                   "Fix bugs in a file"),
+            ("/review <file>",                "Full code review"),
+            ("/explain <file>",               "Explain a file"),
+            ("/refactor <file> [--goal <g>]", "Refactor with a goal"),
+            ("/test <file>",                  "Generate unit tests"),
+            ("/analyse <path>",               "Analyse file or directory"),
+            ("/model <name>",                 "Switch AI model"),
+            ("clear",                         "Clear chat history"),
+            ("exit",                          "Quit"),
+        };
+        foreach (var (cmd, desc) in cmds)
+            ConsoleUI.Info($"{cmd,-40} {desc}");
+    }
 }
 
-// ── Extension helpers ─────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 internal static class StringExtensions
 {
