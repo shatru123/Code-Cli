@@ -145,26 +145,39 @@ dotnet run --project Code-Cli.csproj -- chat
 
 ---
 
-## Quick Start
+## Quick Start — One Click
 
-### Claude
-```bash
-code-cli config --set-key sk-ant-...
-code-cli chat
+### Windows (double-click)
+```
+setup.bat
+```
+Or in PowerShell (no clone needed):
+```powershell
+iwr -useb https://raw.githubusercontent.com/shatru123/Code-Cli/feature/local-ai-agent/setup.ps1 | iex
 ```
 
-### Ollama
+### macOS / Linux (one command, no clone needed)
 ```bash
-ollama pull qwen2.5-coder:7b
-code-cli chat --provider ollama
+curl -sSL https://raw.githubusercontent.com/shatru123/Code-Cli/feature/local-ai-agent/setup.sh | bash
 ```
 
-### Switch providers any time
+Each setup script:
+1. Checks Docker is installed and running
+2. Downloads / builds the `code-cli` binary and adds it to PATH
+3. Asks: **Ollama** (local, free) or **Claude** (API key)?
+4. Launches `code-cli chat` — from there everything is automatic:
+   - Docker pulls `ollama/ollama` image if not cached
+   - Container is created and started
+   - `qwen2.5-coder:7b` is pulled inside the container
+   - Chat opens — ready to use
+
+**Subsequent launches are instant** — the container and model are already there.
+
+### Manual provider switch (after setup)
 ```bash
-code-cli config --set-provider claude
-code-cli config --set-provider ollama
-# or per-command:
-code-cli ask "Explain CQRS" --provider claude
+code-cli config --set-provider claude   # switch to Claude
+code-cli config --set-provider ollama   # switch to Ollama
+code-cli ask "Explain CQRS" --provider claude  # per-command override
 ```
 
 ---
