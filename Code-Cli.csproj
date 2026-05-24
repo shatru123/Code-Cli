@@ -8,8 +8,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>1.0.0</Version>
-    <Description>Code-Cli - Local AI Coding Assistant</Description>
+    <Version>2.0.0</Version>
+    <Description>Code-Cli v2 — AI Coding Assistant powered by Claude + Ollama</Description>
+    <UseAppHost Condition="'$(Configuration)' == 'Debug'">false</UseAppHost>
   </PropertyGroup>
+
+  <!-- Zero NuGet dependencies — pure .NET 8 BCL only -->
 
 </Project>

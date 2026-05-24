@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="version" type="DotNetProject" factoryName=".NET Project">
+    <option name="PROJECT_PATH" value="$PROJECT_DIR$/Code-Cli.csproj" />
+    <option name="TARGET_FRAMEWORK_ID" value="net8.0" />
+    <option name="PROGRAM_PARAMETERS" value="version" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="PASS_PARENT_ENVS" value="1" />
+    <option name="USE_EXTERNAL_CONSOLE" value="0" />
+    <envs></envs>
+    <method v="2">
+      <option name="Build" enabled="true" />
+    </method>
+  </configuration>
+</component>

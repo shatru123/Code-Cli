@@ -1,23 +1,26 @@
 <div align="center">
 
 ```
-  ██████╗ ██████╗ ██████╗ ███████╗███╗   ███╗ █████╗ ████████╗███████╗
- ██╔════╝██╔═══██╗██╔══██╗██╔════╝████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
- ██║     ██║   ██║██║  ██║█████╗  ██╔████╔██║███████║   ██║   █████╗
- ██║     ██║   ██║██║  ██║██╔══╝  ██║╚██╔╝██║██╔══██║   ██║   ██╔══╝
- ╚██████╗╚██████╔╝██████╔╝███████╗██║ ╚═╝ ██║██║  ██║   ██║   ███████╗
-  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝
+  ██████╗ ██████╗ ██████╗ ███████╗      ██████╗██╗     ██╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝     ██╔════╝██║     ██║
+██║     ██║   ██║██║  ██║█████╗       ██║     ██║     ██║
+██║     ██║   ██║██║  ██║██╔══╝       ██║     ██║     ██║
+╚██████╗╚██████╔╝██████╔╝███████╗     ╚██████╗███████╗██║
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝      ╚═════╝╚══════╝╚═╝
 ```
 
-**Local AI Coding Assistant for your terminal**
+**AI Coding Assistant for your terminal**
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
-[![Ollama](https://img.shields.io/badge/Powered%20by-Ollama-black?style=flat-square)](https://ollama.ai)
-[![No API Key](https://img.shields.io/badge/API%20Key-Not%20Required-green?style=flat-square)]()
-[![100% Offline](https://img.shields.io/badge/Works-100%25%20Offline-blue?style=flat-square)]()
+[![Claude](https://img.shields.io/badge/Claude-claude--sonnet--4--5-D97AFF?style=flat-square)](https://anthropic.com)
+[![Ollama](https://img.shields.io/badge/Ollama-qwen2.5--coder-black?style=flat-square)](https://ollama.ai)
+[![No API Key](https://img.shields.io/badge/Ollama-No%20Key%20Required-green?style=flat-square)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue?style=flat-square)]()
 
-*Write. Fix. Review. Explain. — All from your terminal. No subscription. No internet. Forever free.*
+*Write. Fix. Review. Refactor. Test. Analyse. — All from your terminal.*
+
+**[📄 Sample Output](docs/sample-output.html)**
 
 </div>
 
@@ -25,360 +28,278 @@
 
 ## What is Code-Cli?
 
-Code-Cli is a **command-line AI coding assistant** built with **.NET 8** that runs entirely on your own machine. It requires **no API key**, no internet connection after setup, and no subscription fee — ever.
+Code-Cli v2 is a **command-line AI coding assistant** built with **.NET 8 / C# 12** that supports two providers:
 
-It uses **Ollama** to run open-source AI models locally, giving you a private, fast coding assistant that lives in your terminal.
+- **[Claude](https://anthropic.com)** — Anthropic's API, set your key once with `config --set-key`
+- **[Ollama](https://ollama.ai)** — 100% local and offline, no API key required, Docker supported
+
+Switch providers at any time with a single flag. Zero NuGet dependencies — pure .NET BCL only.
 
 ```
 code-cli chat
 code-cli ask "How do I implement the repository pattern in C#?"
+code-cli write "JWT authentication middleware in ASP.NET Core 8"
 code-cli fix MyService.cs --error "NullReferenceException at line 42"
 code-cli review Controllers/AuthController.cs
-code-cli write "REST API with JWT auth in ASP.NET Core 8"
-code-cli explain Program.cs
+code-cli refactor OrderService.cs --goal "extract CQRS handlers"
+code-cli test Services/PaymentService.cs --framework xunit
+code-cli analyse . --focus Controllers --output report.md
 ```
 
 ---
 
-## Features
+## What's New in v2
 
-| Command | Description |
+| Feature | Details |
 |---|---|
-| `chat` | Interactive coding session with conversation history |
-| `ask` | Quick one-off coding questions |
-| `write` | Generate production-ready code from a plain description |
-| `fix` | Detect and fix all bugs in a source file |
-| `review` | Full production-readiness audit — security, performance, SOLID |
-| `explain` | Detailed walkthrough of any code file |
-| `models` | List all locally installed AI models |
-| `config` | View or edit configuration |
+| **Claude provider** | Full SSE streaming via Anthropic API · `claude-sonnet-4-5` default |
+| **`refactor` command** | Goal-driven refactoring plan + complete refactored file |
+| **`test` command** | Full unit test suite with AAA pattern, Theory/InlineData |
+| **`analyse` command** | Single file or whole project — 120k char context, file tree |
+| **`config --set-key`** | One-time key setup, auto-switches provider to Claude |
+| **`config --set-provider`** | Switch between Claude / Ollama / openai-compatible / llama.cpp |
+| **`ProjectContextBuilder`** | Smart repo scanner: skips bin/obj/node_modules, focus pattern |
+| **Provider abstraction** | `IModelProvider` — add any backend in one class |
+
+---
+
+## Commands
+
+| Command | Arguments | Description |
+|---|---|---|
+| `chat` | | Interactive session with `/fix` `/review` `/refactor` `/test` `/analyse` |
+| `ask` | `<question>` | One-off coding question |
+| `write` | `<description>` | Generate production-ready code |
+| `fix` | `<file> [--error <msg>]` | Detect and fix all bugs with severity ratings |
+| `review` | `<file>` | 7-axis production-readiness audit with score |
+| `explain` | `<file>` | Purpose · flow · concepts · data path · examples |
+| `refactor` | `<file> [--goal <goal>]` | Goal-driven refactor plan + complete output |
+| `test` | `<file> [--framework <fw>]` | Full test class — happy path + edge + null cases |
+| `analyse` | `[path] [--focus <pat>]` | File or whole project, saves to `--output` |
+| `diagnose` | `[path]` | Risks, bugs, and production issues |
+| `optimize` | `[path]` | Performance and maintainability suggestions |
+| `architecture` | | Explain repository architecture and extension points |
+| `models` | | List available models for the active provider |
+| `provider` | | Show active provider, endpoint, model |
+| `config` | | View / update configuration |
 
 ---
 
 ## Prerequisites
 
-Before using Code-Cli you need two things installed on your machine:
+### Option A — Claude (recommended)
 
-### 1. .NET 8 SDK *(only needed to build from source)*
+No local install needed beyond the .NET SDK.
 
-Download and install from:
-👉 https://dotnet.microsoft.com/download/dotnet/8.0
+1. Get an API key from [console.anthropic.com](https://console.anthropic.com)
+2. Run: `code-cli config --set-key sk-ant-...`
+3. Done — `code-cli chat` works immediately
 
-Verify it works:
+### Option B — Ollama (100% offline)
+
+**Local:**
 ```bash
-dotnet --version
-# Should print 8.x.x
+# Install from https://ollama.ai, then:
+ollama pull qwen2.5-coder:7b
+ollama serve          # Linux only — auto-starts on Windows/macOS
 ```
 
-### 2. Ollama Runtime *(required to run — provides the AI brain)*
-
-Code-Cli now supports two Ollama runtime modes:
-
-- **Local Ollama**: install Ollama directly on your machine
-- **Docker Ollama**: let Code-Cli start and use an Ollama Docker container
-
-#### Local Ollama
-
-Download and install from:
-👉 https://ollama.ai
-
-- **Windows**: Download the `.exe` installer, run it, click Next → Next → Finish
-- **macOS**: Download the `.zip`, drag to Applications
-- **Linux**: Run the install script shown on the site
-
-Verify Ollama is installed:
+**Docker:**
 ```bash
-ollama --version
-```
+docker run -d --name code-cli-ollama \
+  -p 11434:11434 \
+  -v code-cli-ollama:/root/.ollama \
+  ollama/ollama:latest
 
-#### Docker Ollama
-
-Install Docker Desktop or Docker Engine, then verify Docker is available:
-
-```bash
-docker --version
-docker info
+docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
 ```
 
 ---
 
 ## Installation
 
-### Option A — Download pre-built exe *(easiest)*
-
-1. Go to [Releases](https://github.com/shatru123/Code-Cli/releases)
-2. Download `code-cli.exe` (Windows) or `code-cli` (Linux/macOS)
-3. Move it to a folder in your PATH (e.g. `C:\Tools\`)
-4. Open a new terminal — `code-cli` is ready
-
-### Option B — Build from source
+### Option A — Build from source
 
 **Windows:**
 ```batch
 git clone https://github.com/shatru123/Code-Cli.git
 cd Code-Cli
-build.bat       # builds publish\code-cli.exe
-install.bat     # copies to %USERPROFILE%\.code-cli\bin and adds to PATH
+build.bat       # → publish\code-cli.exe
+install.bat     # → adds to PATH
 ```
 
 **Linux / macOS:**
 ```bash
 git clone https://github.com/shatru123/Code-Cli.git
 cd Code-Cli
-chmod +x build.sh
-./build.sh
+chmod +x build.sh && ./build.sh
 sudo cp ./publish/code-cli /usr/local/bin/code-cli
 ```
 
-Open a **new terminal** after install.
-
----
-
-## First-Time Setup (Pull an AI Model)
-
-### Local Ollama setup
-
-After installing Ollama locally, pull a code-focused AI model. This is a one-time download:
-
-```bash
-# Best overall — recommended (requires ~4 GB disk + 8 GB RAM)
-ollama pull qwen2.5-coder:7b
-
-# Lighter option (requires ~800 MB disk + 4 GB RAM)
-ollama pull qwen2.5-coder:1.5b
-
-# Alternative — also very good
-ollama pull deepseek-coder:6.7b
-```
-
-Then start the Ollama server:
-```bash
-ollama serve
-```
-
-> **Note:** On Windows and macOS, Ollama starts automatically after install and runs in the background. You only need `ollama serve` on Linux.
-
-### Docker Ollama setup
-
-If you prefer Docker, switch Code-Cli to Docker mode:
-
-```bash
-code-cli chat --runtime docker
-```
-
-On first use, Code-Cli will create and start an Ollama container automatically using:
-
-```bash
-docker run -d --name code-cli-ollama -p 11434:11434 -v code-cli-ollama:/root/.ollama ollama/ollama:latest
-```
-
-Then pull a model inside the container:
-
-```bash
-docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
-```
-
-If you want a faster first run on lower-spec machines, use:
-
-```bash
-docker exec -it code-cli-ollama ollama pull qwen2.5-coder:1.5b
-```
-
----
-
-## macOS Quick Start
-
-### Run with local Ollama
-
+### Option B — Run directly (no install)
 ```bash
 git clone https://github.com/shatru123/Code-Cli.git
-cd Code-Cli
-dotnet run --project Code-Cli.csproj -- chat --runtime local
-```
-
-### Run with Docker Ollama
-
-```bash
-git clone https://github.com/shatru123/Code-Cli.git
-cd Code-Cli
-dotnet run --project Code-Cli.csproj -- chat --runtime docker
-```
-
-### Run after Docker is configured as default runtime
-
-```bash
 cd Code-Cli
 dotnet run --project Code-Cli.csproj -- chat
 ```
 
 ---
 
-## Usage Guide
+## Quick Start — One Click
 
-### Interactive Chat
+### Windows (double-click)
+```
+setup.bat
+```
+Or in PowerShell (no clone needed):
+```powershell
+iwr -useb https://raw.githubusercontent.com/shatru123/Code-Cli/feature/local-ai-agent/setup.ps1 | iex
+```
 
-Start a persistent conversation with full context memory:
+### macOS / Linux (one command, no clone needed)
+```bash
+curl -sSL https://raw.githubusercontent.com/shatru123/Code-Cli/feature/local-ai-agent/setup.sh | bash
+```
 
+Each setup script:
+1. Checks Docker is installed and running
+2. Downloads / builds the `code-cli` binary and adds it to PATH
+3. Asks: **Ollama** (local, free) or **Claude** (API key)?
+4. Launches `code-cli chat` — from there everything is automatic:
+   - Docker pulls `ollama/ollama` image if not cached
+   - Container is created and started
+   - `qwen2.5-coder:7b` is pulled inside the container
+   - Chat opens — ready to use
+
+**Subsequent launches are instant** — the container and model are already there.
+
+### Manual provider switch (after setup)
+```bash
+code-cli config --set-provider claude   # switch to Claude
+code-cli config --set-provider ollama   # switch to Ollama
+code-cli ask "Explain CQRS" --provider claude  # per-command override
+```
+
+---
+
+## Usage Examples
+
+### Generate code
+```bash
+code-cli write "Generic repository with EF Core and Unit of Work"
+code-cli write "Rate limiting middleware for ASP.NET Core 8" --output RateLimiter.cs
+```
+
+### Fix bugs
+```bash
+code-cli fix OrderService.cs
+code-cli fix PaymentController.cs --error "Object reference not set at line 42"
+```
+
+### Review & Explain
+```bash
+code-cli review Services/UserService.cs --output review-report.md
+code-cli explain Program.cs
+```
+
+### Refactor
+```bash
+code-cli refactor OrderService.cs --goal "extract CQRS command/query handlers"
+code-cli refactor Controllers/AuthController.cs --goal "apply guard clauses and reduce nesting"
+```
+
+### Generate Tests
+```bash
+code-cli test Services/PaymentService.cs --framework xunit
+code-cli test Repositories/UserRepository.cs --framework pytest
+```
+
+### Analyse a project
+```bash
+# Single file
+code-cli analyse Services/OrderService.cs
+
+# Whole project — builds file tree + all source files
+code-cli analyse . --focus Controllers --output report.md
+```
+
+### Chat session
 ```bash
 code-cli chat
-```
-
-Inside the chat session you can type naturally, or use inline commands:
-
-| Inline command | What it does |
-|---|---|
-| `/fix MyFile.cs` | Fix bugs in a file |
-| `/review MyFile.cs` | Full code review |
-| `/explain MyFile.cs` | Explain a file |
-| `/model qwen2.5-coder:14b` | Switch model mid-session |
-| `clear` | Clear chat history |
-| `exit` | Quit |
-
-**Example session:**
-```
-You     ▶ Write a generic repository in C# with EF Core
-Code-Cli ▶ ...generates full implementation...
-
-You     ▶ /fix OrderService.cs
-Code-Cli ▶ ...finds and fixes all bugs...
-
-You     ▶ How do I add caching to this?
-Code-Cli ▶ ...continues with context...
+# Inside chat:
+# /fix MyService.cs
+# /refactor OrderService.cs --goal "extract interfaces"
+# /test UserService.cs
+# /analyse src/Services
+# /model claude-opus-4-5
 ```
 
 ---
 
-### Ask a Question
-
-```bash
-code-cli ask "What is the difference between IEnumerable and IQueryable?"
-code-cli ask How do I implement retry logic with Polly in .NET 8
-code-cli ask "Explain CQRS pattern with a C# example"
-```
-
----
-
-### Generate Production-Ready Code
-
-```bash
-code-cli write "JWT authentication middleware in ASP.NET Core 8"
-code-cli write "Generic repository pattern with EF Core and Unit of Work"
-code-cli write "Thread-safe LRU cache in C#"
-code-cli write "Retry decorator with exponential backoff"
-
-# Save output directly to a file
-code-cli write "Redis cache helper with sliding expiration" --output RedisHelper.cs
-```
-
----
-
-### Fix Bugs in a File
-
-```bash
-# Auto-detect all bugs
-code-cli fix Program.cs
-
-# With error context (more targeted fix)
-code-cli fix OrderService.cs --error "System.NullReferenceException at line 42"
-code-cli fix PaymentController.cs --error "Object reference not set to an instance"
-
-# Save the fixed version
-code-cli fix MyService.cs --output MyService.fixed.cs
-```
-
----
-
-### Code Review
-
-Performs a full production-readiness audit covering security, performance, SOLID principles, error handling, and test coverage:
-
-```bash
-code-cli review Services/UserService.cs
-code-cli review Controllers/AuthController.cs
-
-# Save report as markdown
-code-cli review PaymentService.cs --output review-report.md
-```
-
----
-
-### Explain Code
-
-```bash
-code-cli explain Program.cs
-code-cli explain Algorithms/QuickSort.cs
-
-# Save explanation to file
-code-cli explain ComplexService.cs --output explanation.md
-```
-
----
-
-### List Installed Models
-
-```bash
-code-cli models
-dotnet run --project Code-Cli.csproj -- models
-```
-
----
-
-## All Options & Flags
+## All Flags
 
 | Flag | Default | Description |
 |---|---|---|
-| `--model <name>` | `qwen2.5-coder:7b` | Use a specific AI model |
+| `--provider <p>` | `ollama` | `claude` · `ollama` · `openai-compatible` · `llama.cpp` |
+| `--model <name>` | provider default | Override the AI model |
 | `--host <url>` | `http://localhost:11434` | Ollama server URL |
-| `--runtime <type>` | `local` | Choose `local` or `docker` Ollama runtime |
-| `--output <file>` | *(print to console)* | Save response to a file |
-| `--error <message>` | *(none)* | Error context for `fix` command |
-| `--no-stream` | *(streaming on)* | Wait for full response before printing |
-| `--verbose` | *(off)* | Show connection info |
+| `--runtime <r>` | `local` | `local` or `docker` |
+| `--output <file>` | print to console | Save response to file |
+| `--error <msg>` | none | Error context for `fix` |
+| `--goal <g>` | default goal | Refactoring goal for `refactor` |
+| `--framework <fw>` | auto-detect | Test framework for `test` |
+| `--focus <pattern>` | none | File pattern priority for `analyse` |
+| `--no-stream` | streaming on | Wait for full response |
+| `--verbose` | off | Show connection details |
 
 ---
 
 ## Configuration
 
-Config is stored at `~/.code-cli/config.json` and is created automatically on first run.
+Stored at `~/.code-cli/config.json`, created automatically on first run.
 
 ```json
 {
+  "provider": "ollama",
   "model": "qwen2.5-coder:7b",
+  "anthropic_api_key": "",
+  "anthropic_model": "claude-sonnet-4-5",
+  "endpoint": "http://localhost:11434",
   "runtime": "local",
-  "host": "http://localhost:11434",
-  "docker_image": "ollama/ollama:latest",
-  "docker_container_name": "code-cli-ollama",
-  "docker_volume": "code-cli-ollama",
-  "docker_auto_start": true,
   "stream": true,
   "history_size": 10,
-  "preferred_language": "auto"
+  "max_context_files": 8,
+  "docker_image": "ollama/ollama:latest",
+  "docker_container_name": "code-cli-ollama",
+  "docker_auto_start": true
 }
 ```
 
-View current config:
+**Config shortcuts:**
 ```bash
-code-cli config
-dotnet run --project Code-Cli.csproj -- config
+code-cli config --set-key sk-ant-...        # Save Claude key + switch to Claude
+code-cli config --set-provider ollama       # Switch back to Ollama
+code-cli config                             # Print full config (key masked)
 ```
 
 ---
 
 ## Recommended Models
 
-| Model | Disk Size | Min RAM | Best For |
+### Claude (via API)
+| Model | Speed | Quality | Use for |
 |---|---|---|---|
-| `qwen2.5-coder:7b` | ~4 GB | 8 GB | Best balance ✅ Recommended |
-| `qwen2.5-coder:14b` | ~8 GB | 16 GB | Highest quality |
-| `qwen2.5-coder:1.5b` | ~1 GB | 4 GB | Low-spec machines, fastest |
-| `deepseek-coder:6.7b` | ~3.8 GB | 8 GB | Excellent code quality |
-| `codellama:7b` | ~3.8 GB | 8 GB | Good general-purpose |
+| `claude-sonnet-4-5` | Fast | ⭐⭐⭐⭐⭐ | Default — best balance ✅ |
+| `claude-opus-4-5` | Slower | ⭐⭐⭐⭐⭐ | Most complex tasks |
+| `claude-haiku-4-5-20251001` | Fastest | ⭐⭐⭐⭐ | Quick questions |
 
-Switch model anytime:
-```bash
-code-cli chat --model qwen2.5-coder:14b
-code-cli ask "..." --model deepseek-coder:6.7b
-```
+### Ollama (local)
+| Model | Disk | RAM | Use for |
+|---|---|---|---|
+| `qwen2.5-coder:7b` | ~4 GB | 8 GB | Best local balance ✅ |
+| `qwen2.5-coder:14b` | ~8 GB | 16 GB | Highest local quality |
+| `qwen2.5-coder:1.5b` | ~1 GB | 4 GB | Low-spec machines |
+| `deepseek-coder:6.7b` | ~3.8 GB | 8 GB | Excellent alternative |
 
 ---
 
@@ -387,106 +308,101 @@ code-cli ask "..." --model deepseek-coder:6.7b
 ```
 code-cli.exe
 │
-├── CLI Router (Program.cs)
-│       └── Parses commands, flags, and file paths
+├── Program.cs — CLI router
+│   └── flag parsing · provider/runtime selection · config mutations
+│
+├── Commands (AllCommands.cs)
+│   ├── AskCommand       WriteCommand      FixCommand
+│   ├── ReviewCommand    ExplainCommand    RefactorCommand
+│   ├── TestCommand      AnalyseCommand    DiagnoseCommand
+│   ├── OptimizeCommand  ArchitectureCommand
+│   └── ChatCommand      (REPL with /slash commands)
 │
 ├── CodeAssistantService
-│       └── Selects the right expert system prompt per command
-│           ├── CodeWriter   — production-ready code generation
-│           ├── BugFixer     — structured bug analysis + fix
-│           ├── CodeReviewer — SOLID/security/performance audit
-│           ├── Explainer    — step-by-step code walkthrough
-│           └── ChatAssistant — conversational with history
+│   └── Selects expert system prompt per command
+│       Delegates streaming to IModelProvider
 │
-└── OllamaService
-        └── HTTP POST → http://localhost:11434/api/generate
-                    Streaming NDJSON response (token by token)
-                    ↓
-                Local LLM (qwen2.5-coder, deepseek-coder, etc.)
-                Runs 100% on your GPU / CPU
-
-└── OllamaRuntimeManager
-        └── Chooses local or docker runtime
-            Can auto-start `ollama/ollama` in Docker mode
+├── IModelProvider  ◄─ provider abstraction
+│   ├── ClaudeModelProvider      (Anthropic SSE API)
+│   ├── OllamaModelProvider      (NDJSON streaming)
+│   ├── OpenAiCompatibleProvider (OpenAI-format REST)
+│   └── LlamaCppModelProvider    (llama.cpp server)
+│
+├── ModelProviderRegistry
+│   └── Creates the correct provider from config.Provider
+│
+├── ProjectContextBuilder
+│   └── File tree + source files (120k char budget)
+│       Skips bin/obj/node_modules/.git
+│       --focus pattern prioritises matching files
+│
+└── ConfigManager
+    └── ~/.code-cli/config.json
+        SetApiKey() · SetProvider()
+        ANTHROPIC_API_KEY env var auto-detection
 ```
 
 ---
 
 ## Troubleshooting
 
-**"Cannot connect to Ollama"**
+**Cannot connect to Claude**
 ```bash
-ollama serve    # Start Ollama manually (Linux)
-# On Windows/Mac: check system tray — Ollama should be running
+code-cli config --set-key sk-ant-...
+# or via env:
+export ANTHROPIC_API_KEY=sk-ant-...
+code-cli chat
 ```
 
-**"Cannot connect in Docker mode"**
+**Cannot connect to Ollama**
 ```bash
-docker info
-docker ps -a | grep code-cli-ollama
+ollama serve          # Linux — start manually
+# Windows/macOS: check system tray
+```
+
+**Docker mode not starting**
+```bash
+docker info           # verify daemon is running
 docker start code-cli-ollama
 ```
 
-**"No .NET SDKs were found"**
+**Slow responses (Ollama)**
 ```bash
-dotnet --list-sdks
-```
-
-If `dotnet` shows only the runtime and no SDKs, install the .NET 8 SDK and make sure your shell resolves the SDK copy first.
-
-On macOS with a user-local install, add this to `~/.zshrc` or `~/.zprofile`:
-
-```bash
-export DOTNET_ROOT="$HOME/.dotnet"
-export PATH="$DOTNET_ROOT:$PATH"
-```
-
-Then open a new terminal or run:
-
-```bash
-source ~/.zshrc
-```
-
-**Slow responses**
-```bash
-# Use a smaller model
 ollama pull qwen2.5-coder:1.5b
 code-cli chat --model qwen2.5-coder:1.5b
 ```
 
-**Model not found**
+**No .NET SDK found**
 ```bash
-ollama list                        # See what's installed
-ollama pull qwen2.5-coder:7b       # Pull the default model
+dotnet --list-sdks   # should show 8.x.x
+# Install from https://dotnet.microsoft.com/download/dotnet/8.0
 ```
-
-**Model not found in Docker mode**
-```bash
-docker exec -it code-cli-ollama ollama list
-docker exec -it code-cli-ollama ollama pull qwen2.5-coder:7b
-```
-
-**Out of memory crash**
-```bash
-# Use the 1.5b model — works on 4 GB RAM
-ollama pull qwen2.5-coder:1.5b
-```
-
-**Windows: colors not showing correctly**
-- Run in Windows Terminal (not the old CMD) for full color support
-- Download from Microsoft Store: **Windows Terminal**
 
 ---
 
 ## Tech Stack
 
-- **Runtime:** .NET 8 (C# 12)
-- **AI Engine:** Ollama (local or Docker runtime)
-- **Default Model:** Qwen 2.5 Coder 7B
-- **Transport:** HTTP streaming (NDJSON) via `HttpClient`
-- **Output:** Single self-contained `.exe` (no install required)
+- **Runtime:** .NET 8 / C# 12
+- **AI providers:** Anthropic Claude (SSE), Ollama (NDJSON), OpenAI-compatible, llama.cpp
+- **Transport:** `HttpClient` streaming — SSE for Claude, NDJSON for Ollama
+- **Output:** Single self-contained `.exe` (no install required after build)
 - **Config:** JSON at `~/.code-cli/config.json`
 - **Dependencies:** Zero NuGet packages — pure .NET BCL only
+
+---
+
+## Vision
+
+Code-Cli is evolving from a smart CLI assistant into an **autonomous AI software engineer**:
+
+- ✅ Multi-provider AI (Claude + Ollama)
+- ✅ Repository context builder (file tree + source scanning)
+- ✅ Refactor, test generation, project analysis
+- 🔜 Roslyn semantic analysis — understand symbols, not just text
+- 🔜 Multi-file reasoning — changes that span the whole codebase
+- 🔜 Build validation — compile after each AI suggestion
+- 🔜 Test execution — run tests and feed results back to AI
+- 🔜 Autonomous bug-fix loop — fix → build → test → repeat
 
 ---
 
@@ -497,5 +413,5 @@ MIT — Free to use, modify, and distribute for any purpose.
 ---
 
 <div align="center">
-Built with ❤️ by Shatrughna using .NET 8 and Ollama
+Built with ❤️ by Shatrughna · .NET 8 · Claude + Ollama
 </div>

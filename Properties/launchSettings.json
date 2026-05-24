@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+
+    "chat » Docker (Ollama)": {
+      "commandName": "Project",
+      "commandLineArgs": "chat --runtime docker",
+      "environmentVariables": {}
+    },
+
+    "chat » Local Ollama": {
+      "commandName": "Project",
+      "commandLineArgs": "chat --provider ollama",
+      "environmentVariables": {}
+    },
+
+    "chat » Claude": {
+      "commandName": "Project",
+      "commandLineArgs": "chat --provider claude",
+      "environmentVariables": {
+        "ANTHROPIC_API_KEY": "sk-ant-replace-me"
+      }
+    },
+
+    "ask (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "ask How do I implement dependency injection in ASP.NET Core 8",
+      "environmentVariables": {}
+    },
+
+    "write (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "write \"Generic repository pattern with EF Core and Unit of Work\"",
+      "environmentVariables": {}
+    },
+
+    "fix (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "fix src/Services/CodeAssistantService.cs",
+      "environmentVariables": {}
+    },
+
+    "review (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "review src/Services/CodeAssistantService.cs",
+      "environmentVariables": {}
+    },
+
+    "explain (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "explain src/Services/CodeAssistantService.cs",
+      "environmentVariables": {}
+    },
+
+    "refactor (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "refactor src/Services/CodeAssistantService.cs --goal \"improve readability and apply SOLID\"",
+      "environmentVariables": {}
+    },
+
+    "test (sample)": {
+      "commandName": "Project",
+      "commandLineArgs": "test src/Services/CodeAssistantService.cs --framework xunit",
+      "environmentVariables": {}
+    },
+
+    "analyse project": {
+      "commandName": "Project",
+      "commandLineArgs": "analyse . --focus Services",
+      "environmentVariables": {}
+    },
+
+    "models": {
+      "commandName": "Project",
+      "commandLineArgs": "models",
+      "environmentVariables": {}
+    },
+
+    "config": {
+      "commandName": "Project",
+      "commandLineArgs": "config",
+      "environmentVariables": {}
+    },
+
+    "provider": {
+      "commandName": "Project",
+      "commandLineArgs": "provider",
+      "environmentVariables": {}
+    },
+
+    "version": {
+      "commandName": "Project",
+      "commandLineArgs": "version",
+      "environmentVariables": {}
+    }
+
+  }
+}

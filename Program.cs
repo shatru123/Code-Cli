@@ -1,8 +1,9 @@
 using CodeCli.Commands;
+using CodeCli.Providers;
 using CodeCli.Services;
 using CodeCli.UI;
 
-// ── Handle Ctrl+C gracefully ──────────────────────────────────────────────────
+// ── Ctrl+C ────────────────────────────────────────────────────────────────────
 
 using var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) =>
@@ -13,27 +14,38 @@ Console.CancelKeyPress += (_, e) =>
     ConsoleUI.Warning("Cancelled.");
 };
 
-// ── Parse global flags BEFORE System.CommandLine routing ─────────────────────
+// ── Parse global flags ────────────────────────────────────────────────────────
 
-string? modelOverride   = GetFlag(args, "--model");
-string? hostOverride    = GetFlag(args, "--host");
-string? outputFile      = GetFlag(args, "--output");
-string? runtimeOverride = GetFlag(args, "--runtime");
-bool    noStream        = args.Contains("--no-stream");
-bool    verbose         = args.Contains("--verbose");
+string? modelOverride    = GetFlag(args, "--model");
+string? hostOverride     = GetFlag(args, "--host");
+string? endpointOverride = GetFlag(args, "--endpoint");
+string? providerOverride = GetFlag(args, "--provider");
+string? outputFile       = GetFlag(args, "--output");
+string? runtimeOverride  = GetFlag(args, "--runtime");
+string? errorMsg         = GetFlag(args, "--error");
+string? framework        = GetFlag(args, "--framework");
+string? goal             = GetFlag(args, "--goal");
+string? focus            = GetFlag(args, "--focus");
+bool    noStream         = args.Contains("--no-stream");
+bool    verbose          = args.Contains("--verbose");
 
-// Strip flags from args for command routing
 var cleanArgs = StripFlags(args);
 
 // ── Load configuration ────────────────────────────────────────────────────────
 
 var config = ConfigManager.Load();
-if (modelOverride  is not null) config.Model  = modelOverride;
-if (hostOverride   is not null) config.Host   = hostOverride;
-if (runtimeOverride is not null) config.Runtime = ConfigManager.NormalizeRuntime(runtimeOverride);
-if (noStream)                   config.Stream = false;
+if (modelOverride    is not null) config.Model    = modelOverride;
+if (hostOverride     is not null) { config.Host = hostOverride; config.Endpoint = hostOverride; }
+if (endpointOverride is not null) { config.Endpoint = endpointOverride; config.Host = endpointOverride; }
+if (providerOverride is not null) config.Provider = ConfigManager.NormalizeProvider(providerOverride);
+if (runtimeOverride  is not null) config.Runtime  = ConfigManager.NormalizeRuntime(runtimeOverride);
+if (noStream)                     config.Stream   = false;
 
-// ── No args → show help ───────────────────────────────────────────────────────
+// When Claude is the active provider, use AnthropicModel as the model name
+if (config.Provider == "claude" && modelOverride is null)
+    config.Model = config.AnthropicModel;
+
+// ── No args → help ────────────────────────────────────────────────────────────
 
 if (cleanArgs.Length == 0)
 {
@@ -41,10 +53,11 @@ if (cleanArgs.Length == 0)
     return 0;
 }
 
-var command = cleanArgs[0].ToLowerInvariant();
-var runtime = new OllamaRuntimeManager(config);
+var command          = cleanArgs[0].ToLowerInvariant();
+var runtime          = new OllamaRuntimeManager(config);
+var providerRegistry = new ModelProviderRegistry(config);
 
-// ── Special commands (no Ollama needed) ──────────────────────────────────────
+// ── Provider-independent commands ─────────────────────────────────────────────
 
 if (command is "--help" or "-h" or "help")
 {
@@ -54,91 +67,148 @@ if (command is "--help" or "-h" or "help")
 
 if (command is "--version" or "-v" or "version")
 {
-    Console.WriteLine("Code-Cli v1.0.0");
+    Console.WriteLine("Code-Cli v2.0.0");
     return 0;
 }
 
 if (command is "config")
 {
+    // Mutation sub-commands
+    var setKey      = GetFlag(args, "--set-key");
+    var setProvider = GetFlag(args, "--set-provider");
+
+    if (setKey is not null)
+    {
+        ConfigManager.SetApiKey(setKey);
+        ConsoleUI.Success("Anthropic API key saved. Provider switched to claude.");
+        ConsoleUI.Info("Run: code-cli chat   to start using Claude.");
+        return 0;
+    }
+
+    if (setProvider is not null)
+    {
+        ConfigManager.SetProvider(setProvider);
+        ConsoleUI.Success($"Provider set to: {ConfigManager.NormalizeProvider(setProvider)}");
+        return 0;
+    }
+
+    // Print
     ConsoleUI.SectionHeader("CONFIGURATION");
     ConfigManager.Print(config);
     Console.WriteLine();
-    ConsoleUI.Info("To change: edit ~/.code-cli/config.json");
+    ConsoleUI.Info($"Config file: {System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".code-cli", "config.json")}");
+    ConsoleUI.Info("To set Claude key:  code-cli config --set-key sk-ant-...");
+    ConsoleUI.Info("To switch provider: code-cli config --set-provider ollama|claude");
     return 0;
 }
 
-// ── Verify Ollama is running ──────────────────────────────────────────────────
-
-var ollama    = new OllamaService(config.Host);
-var assistant = new CodeAssistantService(ollama, config.Model);
-
-if (runtime.UsesDocker)
+if (command is "explain-project")
 {
-    var preparation = await ConsoleUI.WithSpinnerAsync(
-        "Preparing Ollama Docker runtime",
-        () => runtime.PrepareAsync(cts.Token),
-        cts.Token);
+    var epProvider  = providerRegistry.CreateActiveProvider();
+    var epAssistant = new CodeAssistantService(epProvider, config.Model);
+    var epAgent     = new AutonomousCodingAgent(
+        epAssistant,
+        new CodeContextBuilder(new RepositoryScanner(), new CSharpProjectAnalyzer()));
+    await new ExplainProjectCommand(epAssistant, epAgent).ExecuteAsync(cts.Token);
+    return 0;
+}
+
+// ── Prepare Ollama Docker runtime if needed ───────────────────────────────────
+
+if (config.Provider == "ollama" && runtime.UsesDocker)
+{
+    // PrepareAsync writes live progress to console (image pull, model pull),
+    // so we do NOT wrap it in a spinner.
+    ConsoleUI.SectionHeader("DOCKER RUNTIME — AUTO SETUP");
+    var preparation = await runtime.PrepareAsync(cts.Token);
 
     if (!preparation.Success)
     {
+        Console.WriteLine();
         ConsoleUI.Error(preparation.Message);
         Console.WriteLine();
-        Console.WriteLine("  To fix this:");
+        Console.WriteLine("  How to fix:");
         foreach (var step in runtime.GetStartupHelp())
             Console.WriteLine($"  {step}");
         Console.WriteLine();
         return 1;
     }
 
-    if (verbose)
-        ConsoleUI.Info(preparation.Message);
+    Console.WriteLine();
 }
+
+// ── Create provider + services ────────────────────────────────────────────────
+
+var provider  = providerRegistry.CreateActiveProvider();
+var assistant = new CodeAssistantService(provider, config.Model);
+var agent     = new AutonomousCodingAgent(
+    assistant,
+    new CodeContextBuilder(new RepositoryScanner(), new CSharpProjectAnalyzer()));
+
+// ── models ────────────────────────────────────────────────────────────────────
 
 if (command is "models")
 {
-    ConsoleUI.SectionHeader("INSTALLED MODELS");
+    ConsoleUI.SectionHeader($"MODELS — {config.Provider.ToUpper()}");
     var models = await ConsoleUI.WithSpinnerAsync(
         "Fetching models",
-        () => ollama.GetAvailableModelsAsync(),
+        () => provider.GetAvailableModelsAsync(cts.Token),
         cts.Token);
 
     if (models.Count == 0)
-    {
-        var installCommand = runtime.UsesDocker
-            ? $"docker exec -it {config.DockerContainerName} ollama pull qwen2.5-coder:7b"
-            : "ollama pull qwen2.5-coder:7b";
-        ConsoleUI.Warning($"No models found. Install one with: {installCommand}");
-    }
+        ConsoleUI.Warning("No models found.");
     else
-    {
-        ConsoleUI.PrintModelTable(models);
-        ConsoleUI.Info($"Active model: {config.Model}");
-    }
+        ConsoleUI.PrintModelTable(models, config.Model);
 
     return 0;
 }
 
-// For all AI commands, ensure Ollama is available
-bool ollamaRunning = await ConsoleUI.WithSpinnerAsync(
-    "Connecting to Ollama",
-    () => ollama.IsRunningAsync(),
+// ── provider ──────────────────────────────────────────────────────────────────
+
+if (command is "provider")
+{
+    new ProviderCommand().Execute(
+        assistant.ProviderName,
+        assistant.Endpoint,
+        assistant.Model,
+        providerRegistry.GetAvailableProviders());
+    return 0;
+}
+
+// ── Verify provider is reachable ──────────────────────────────────────────────
+
+bool available = await ConsoleUI.WithSpinnerAsync(
+    $"Connecting to {assistant.ProviderName}",
+    () => provider.IsAvailableAsync(cts.Token),
     cts.Token);
 
-if (!ollamaRunning)
+if (!available)
 {
-    ConsoleUI.Error($"Cannot connect to Ollama at {config.Host}");
+    ConsoleUI.Error($"Cannot connect to {assistant.ProviderName} at {assistant.Endpoint}");
     Console.WriteLine();
-    Console.WriteLine("  To fix this:");
-    foreach (var step in runtime.GetStartupHelp())
-        Console.WriteLine($"  {step}");
+
+    if (config.Provider == "claude")
+    {
+        ConsoleUI.Info("Set your API key:   code-cli config --set-key sk-ant-...");
+        ConsoleUI.Info("Or set via env:     export ANTHROPIC_API_KEY=sk-ant-...");
+        ConsoleUI.Info("Switch to Ollama:   code-cli config --set-provider ollama");
+    }
+    else
+    {
+        Console.WriteLine("  To fix this:");
+        foreach (var step in runtime.GetStartupHelp())
+            Console.WriteLine($"  {step}");
+    }
+
     Console.WriteLine();
     return 1;
 }
 
 if (verbose)
-    ConsoleUI.Success($"Connected to Ollama at {config.Host} | Model: {config.Model}");
+    ConsoleUI.Success($"Connected to {assistant.ProviderName} at {assistant.Endpoint} | Model: {config.Model}");
 
-// ── Route to commands ─────────────────────────────────────────────────────────
+// ── Route commands ────────────────────────────────────────────────────────────
 
 int exitCode = 0;
 
@@ -146,102 +216,114 @@ try
 {
     switch (command)
     {
-        // ── chat ─────────────────────────────────────────────────────────────
         case "chat":
-        {
-            var cmd = new ChatCommand(assistant);
-            await cmd.ExecuteAsync(cts.Token);
+            await new ChatCommand(assistant).ExecuteAsync(cts.Token);
             break;
-        }
 
-        // ── ask ──────────────────────────────────────────────────────────────
         case "ask":
-        {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli ask <question>");
-                ConsoleUI.Error("Example: code-cli ask \"How do I implement dependency injection in .NET?\"");
                 exitCode = 1; break;
             }
-
-            // Join remaining args as question (no need for quotes)
-            var question = string.Join(" ", cleanArgs[1..]);
-            var cmd = new AskCommand(assistant);
-            await cmd.ExecuteAsync(question, outputFile, cts.Token);
+            await new AskCommand(assistant).ExecuteAsync(
+                string.Join(" ", cleanArgs[1..]), outputFile, cts.Token);
             break;
-        }
 
-        // ── write ────────────────────────────────────────────────────────────
         case "write":
-        {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli write <description>");
-                ConsoleUI.Error("Example: code-cli write \"JWT authentication middleware in ASP.NET Core\"");
                 exitCode = 1; break;
             }
-
-            var description = string.Join(" ", cleanArgs[1..]);
-            var cmd = new WriteCommand(assistant);
-            await cmd.ExecuteAsync(description, outputFile, cts.Token);
+            await new WriteCommand(assistant).ExecuteAsync(
+                string.Join(" ", cleanArgs[1..]), outputFile, cts.Token);
             break;
-        }
 
-        // ── fix ──────────────────────────────────────────────────────────────
         case "fix":
-        {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli fix <file> [--error <message>]");
-                ConsoleUI.Error("Example: code-cli fix MyService.cs --error \"NullReferenceException at line 42\"");
                 exitCode = 1; break;
             }
-
-            var filePath   = cleanArgs[1];
-            var errMsg     = GetFlag(args, "--error");
-            var cmd        = new FixCommand(assistant);
-            await cmd.ExecuteAsync(filePath, errMsg, outputFile, cts.Token);
+            await new FixCommand(assistant).ExecuteAsync(cleanArgs[1], errorMsg, outputFile, cts.Token);
             break;
-        }
 
-        // ── review ───────────────────────────────────────────────────────────
         case "review":
-        {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli review <file>");
-                ConsoleUI.Error("Example: code-cli review Controllers/UserController.cs");
                 exitCode = 1; break;
             }
-
-            var cmd = new ReviewCommand(assistant);
-            await cmd.ExecuteAsync(cleanArgs[1], outputFile, cts.Token);
+            await new ReviewCommand(assistant).ExecuteAsync(cleanArgs[1], outputFile, cts.Token);
             break;
-        }
 
-        // ── explain ──────────────────────────────────────────────────────────
         case "explain":
-        {
             if (cleanArgs.Length < 2)
             {
                 ConsoleUI.Error("Usage: code-cli explain <file>");
-                ConsoleUI.Error("Example: code-cli explain Program.cs");
                 exitCode = 1; break;
             }
+            await new ExplainCommand(assistant).ExecuteAsync(cleanArgs[1], outputFile, cts.Token);
+            break;
 
-            var cmd = new ExplainCommand(assistant);
-            await cmd.ExecuteAsync(cleanArgs[1], outputFile, cts.Token);
+        case "refactor":
+            if (cleanArgs.Length < 2)
+            {
+                ConsoleUI.Error("Usage: code-cli refactor <file> [--goal \"improve readability\"]");
+                ConsoleUI.Error("Example: code-cli refactor Services/OrderService.cs --goal \"extract CQRS handlers\"");
+                exitCode = 1; break;
+            }
+            await new RefactorCommand(assistant).ExecuteAsync(
+                cleanArgs[1],
+                goal ?? "improve readability, maintainability, and apply SOLID principles",
+                outputFile,
+                cts.Token);
+            break;
+
+        case "test":
+            if (cleanArgs.Length < 2)
+            {
+                ConsoleUI.Error("Usage: code-cli test <file> [--framework xunit|pytest|jest]");
+                ConsoleUI.Error("Example: code-cli test Services/PaymentService.cs --framework xunit");
+                exitCode = 1; break;
+            }
+            await new TestCommand(assistant).ExecuteAsync(
+                cleanArgs[1], framework, outputFile, cts.Token);
+            break;
+
+        case "analyse":
+        case "analyze":
+        {
+            var analysePath = cleanArgs.Length > 1 ? cleanArgs[1] : ".";
+            await new AnalyseCommand(assistant).ExecuteAsync(analysePath, focus, outputFile, cts.Token);
             break;
         }
 
-        // ── unknown ───────────────────────────────────────────────────────────
-        default:
+        case "diagnose":
         {
+            var targetPath = cleanArgs.Length >= 2 ? cleanArgs[1] : null;
+            await new DiagnoseCommand(assistant, agent).ExecuteAsync(targetPath, outputFile, cts.Token);
+            break;
+        }
+
+        case "optimize":
+        case "optimise":
+        {
+            var targetPath = cleanArgs.Length >= 2 ? cleanArgs[1] : null;
+            await new OptimizeCommand(assistant, agent).ExecuteAsync(targetPath, outputFile, cts.Token);
+            break;
+        }
+
+        case "architecture":
+            await new ArchitectureCommand(assistant, agent).ExecuteAsync(outputFile, cts.Token);
+            break;
+
+        default:
             ConsoleUI.Error($"Unknown command: '{command}'");
             Console.WriteLine("Run 'code-cli --help' for usage.");
             exitCode = 1;
             break;
-        }
     }
 }
 catch (OperationCanceledException)
@@ -270,16 +352,16 @@ static string? GetFlag(string[] args, string flag)
 
 static string[] StripFlags(string[] args)
 {
-    var result = new List<string>();
-    var flagsWithValues = new HashSet<string> { "--model", "--host", "--output", "--error", "--runtime" };
-
-    for (int i = 0; i < args.Length; i++)
+    var flagsWithValues = new HashSet<string>
     {
-        if (flagsWithValues.Contains(args[i]))
-        {
-            i++; // skip flag value
-            continue;
-        }
+        "--model", "--host", "--endpoint", "--provider", "--output",
+        "--error", "--runtime", "--framework", "--goal", "--focus",
+        "--set-key", "--set-provider"
+    };
+    var result = new List<string>();
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (flagsWithValues.Contains(args[i])) { i++; continue; }
         if (args[i].StartsWith("--")) continue;
         result.Add(args[i]);
     }
