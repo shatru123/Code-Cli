@@ -118,23 +118,24 @@ if (command is "explain-project")
 
 if (config.Provider == "ollama" && runtime.UsesDocker)
 {
-    var preparation = await ConsoleUI.WithSpinnerAsync(
-        "Preparing Ollama Docker runtime",
-        () => runtime.PrepareAsync(cts.Token),
-        cts.Token);
+    // PrepareAsync writes live progress to console (image pull, model pull),
+    // so we do NOT wrap it in a spinner.
+    ConsoleUI.SectionHeader("DOCKER RUNTIME — AUTO SETUP");
+    var preparation = await runtime.PrepareAsync(cts.Token);
 
     if (!preparation.Success)
     {
+        Console.WriteLine();
         ConsoleUI.Error(preparation.Message);
         Console.WriteLine();
-        Console.WriteLine("  To fix this:");
+        Console.WriteLine("  How to fix:");
         foreach (var step in runtime.GetStartupHelp())
             Console.WriteLine($"  {step}");
         Console.WriteLine();
         return 1;
     }
 
-    if (verbose) ConsoleUI.Info(preparation.Message);
+    Console.WriteLine();
 }
 
 // ── Create provider + services ────────────────────────────────────────────────
