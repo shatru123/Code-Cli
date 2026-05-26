@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code-Cli — Complete Technical Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0e14; --surface:#131621; --panel:#1a1e2c; --border:#252a3b;
+  --accent:#00e5a0; --accent2:#5b8eff; --accent3:#ff6b6b; --accent4:#ffc14e; --accent5:#c084fc;
+  --text:#c4cde0; --muted:#4d5670; --bright:#eef1f8;
+  --kw:#c792ea; --st:#c3e88d; --cm:#4a5568; --ty:#82aaff; --nm:#f78c6c; --mt:#82aaff; --pa:#ffcb6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.7;overflow-x:hidden}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% -10%,rgba(0,229,160,.09) 0%,transparent 65%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(91,142,255,.07) 0%,transparent 60%);pointer-events:none}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:44px 44px;opacity:.3;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);border-radius:100px;padding:6px 18px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:28px;animation:fadeUp .6s ease both}
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(52px,9vw,110px);font-weight:800;color:var(--bright);letter-spacing:-3px;line-height:1;animation:fadeUp .6s .1s ease both}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-family:'Syne',sans-serif;font-size:clamp(13px,1.8vw,17px);color:var(--muted);margin-top:18px;max-width:560px;animation:fadeUp .6s .2s ease both}
+.hero-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:32px;animation:fadeUp .6s .3s ease both}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.5px;border:1px solid}
+.pg{background:rgba(0,229,160,.08);border-color:rgba(0,229,160,.3);color:var(--accent)}
+.pb{background:rgba(91,142,255,.08);border-color:rgba(91,142,255,.3);color:var(--accent2)}
+.py{background:rgba(255,193,78,.08);border-color:rgba(255,193,78,.3);color:var(--accent4)}
+.pr{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.3);color:var(--accent3)}
+.pp{background:rgba(192,132,252,.08);border-color:rgba(192,132,252,.3);color:var(--accent5)}
+.ascii{margin-top:44px;font-size:8.5px;line-height:1.2;color:var(--muted);opacity:.45;animation:fadeUp .6s .4s ease both}
+.scroll-hint{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;animation:fadeUp .6s .5s ease both}
+.scroll-arrow{width:18px;height:18px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);animation:bounce 1.5s infinite}
+
+/* TOC */
+.toc-bar{background:rgba(12,14,20,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;gap:20px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.toc-bar a{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .15s;white-space:nowrap}
+.toc-bar a:hover,.toc-bar a.active{color:var(--accent)}
+
+/* MAIN */
+main{max-width:980px;margin:0 auto;padding:48px 24px 120px}
+
+/* SECTIONS */
+.section{margin-bottom:88px}
+.section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h2{font-family:'Syne',sans-serif;font-size:clamp(22px,3.5vw,34px);font-weight:800;color:var(--bright);letter-spacing:-1px;margin-bottom:18px}
+h3{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--bright);margin:36px 0 12px}
+h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent2);margin:22px 0 8px}
+p{color:var(--text);margin-bottom:12px;line-height:1.85}
+strong{color:var(--bright)}
+ic{background:rgba(0,229,160,.1);color:var(--accent);padding:1px 7px;border-radius:4px;font-size:12px;font-family:'JetBrains Mono',monospace}
+
+/* DIAGRAM WRAPPERS */
+.diagram-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:24px 0}
+.diagram-header{background:var(--panel);padding:11px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dr{background:#ff5f56}.da{background:#ffbd2e}.dg{background:#27c93f}
+.diagram-body{padding:28px 20px;overflow-x:auto}
+svg{max-width:100%;display:block}
+
+/* CODE FILES */
+.code-file{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:22px 0}
+.code-file-header{background:var(--panel);padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cfn{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--bright);font-weight:600}
+.cfm{font-size:11px;color:var(--muted)}
+.code-scroll{overflow-x:auto}
+.code-table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.75}
+.code-table tr:hover{background:rgba(255,255,255,.018)}
+.ln{text-align:right;padding:0 12px 0 8px;color:var(--muted);user-select:none;width:42px;vertical-align:top;font-size:10.5px;border-right:1px solid var(--border)}
+.lc{padding:0 16px 0 12px;white-space:pre;color:var(--text);vertical-align:top}
+.la{padding:2px 14px;color:var(--cm);font-style:italic;font-size:11px;vertical-align:top;border-left:1px solid var(--border);min-width:260px;max-width:360px;white-space:normal;line-height:1.65}
+.hl td{background:rgba(0,229,160,.035)}
+.hl .ln{color:var(--accent)}
+.kw{color:var(--kw)}.st{color:var(--st)}.cm{color:var(--cm);font-style:italic}.ty{color:var(--ty)}.nm{color:var(--nm)}.mt{color:var(--mt)}.pa{color:var(--pa)}.op{color:var(--accent3)}.ac{color:var(--accent)}.ac2{color:var(--accent2)}
+
+/* CARDS */
+.exp-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:14px 0;position:relative;overflow:hidden}
+.exp-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.exp-card.blue::before{background:var(--accent2)}.exp-card.red::before{background:var(--accent3)}.exp-card.yellow::before{background:var(--accent4)}.exp-card.purple::before{background:var(--accent5)}
+.exp-title{font-family:'Syne',sans-serif;font-weight:700;color:var(--bright);margin-bottom:5px;font-size:13.5px}
+.exp-body{color:var(--text);font-size:12.5px;line-height:1.8}
+.exp-body code{background:rgba(0,229,160,.1);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:11px}
+
+/* CALLOUT */
+.callout{background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.18);border-radius:8px;padding:13px 17px;font-size:12.5px;color:var(--text);margin:14px 0}
+.callout.warn{background:rgba(255,193,78,.05);border-color:rgba(255,193,78,.18)}
+.callout.info{background:rgba(91,142,255,.05);border-color:rgba(91,142,255,.18)}
+
+/* COMMAND GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin:20px 0}
+.cmd-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;transition:all .2s;cursor:default}
+.cmd-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,229,160,.07)}
+.cmd-name{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);margin-bottom:7px}
+.cmd-desc{font-size:11.5px;color:var(--muted);line-height:1.65}
+.cmd-usage{margin-top:10px;background:var(--bg);border-radius:6px;padding:8px 12px;font-size:10.5px;color:var(--st)}
+
+/* FLAGS TABLE */
+.ftable{width:100%;border-collapse:collapse;margin:12px 0}
+.ftable th{background:var(--panel);padding:9px 14px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.ftable td{padding:9px 14px;border-bottom:1px solid rgba(37,42,59,.5);font-size:12.5px;vertical-align:top}
+.ftable tr:last-child td{border-bottom:none}
+.ftable td:first-child{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.ftable td:nth-child(2){color:var(--accent4);font-size:11.5px}
+.fwrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+
+/* TECH GRID */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;margin:18px 0}
+.tech-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.tech-label{font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.tech-value{font-family:'Syne',sans-serif;font-weight:700;color:var(--bright);font-size:14px}
+.tech-detail{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* FILE TREE */
+.file-tree{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;font-size:12.5px;line-height:2}
+.ftr{color:var(--accent);font-weight:700}
+.ftf{color:var(--ty)}.ftd{color:var(--muted);font-size:10.5px;margin-left:7px}.fti1{padding-left:20px}.fti2{padding-left:40px}.ftfol{color:var(--accent4)}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;position:relative;margin:18px 0;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent2));opacity:.35}
+.tl-item{position:relative;padding-bottom:22px}
+.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl-item:nth-child(2n)::before{background:var(--accent2)}
+.tl-item:nth-child(3n)::before{background:var(--accent4)}
+.tl-title{font-family:'Syne',sans-serif;font-weight:700;color:var(--bright);font-size:13.5px;margin-bottom:4px}
+.tl-body{font-size:12px;color:var(--text);line-height:1.75}
+.tl-body code{background:rgba(0,229,160,.1);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:11px}
+
+hr.div{border:none;border-top:1px solid var(--border);margin:56px 0}
+
+/* CONFIG BOX */
+.config-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;font-size:12.5px;line-height:2}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(5px)}}
+@media(max-width:640px){.cmd-grid{grid-template-columns:1fr}.toc-bar{gap:10px}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HERO ══════════════════════════════════ -->
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-badge">◈ Full Technical Documentation</div>
+  <h1 class="hero-title">Code<span>-Cli</span></h1>
+  <p class="hero-sub">A 100% offline AI coding assistant for your terminal. No API key. No subscription. Powered by .NET 8 + Ollama.</p>
+  <div class="hero-pills">
+    <span class="pill pg">✦ .NET 8 / C# 12</span>
+    <span class="pill pb">⬡ Ollama Engine</span>
+    <span class="pill py">◈ Zero NuGet Deps</span>
+    <span class="pill pr">◉ 100% Offline</span>
+    <span class="pill pp">⬢ Docker Support</span>
+    <span class="pill pg">MIT License</span>
+  </div>
+  <pre class="ascii"> ██████╗ ██████╗ ██████╗ ███████╗███╗   ███╗ █████╗ ████████╗███████╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
+██║     ██║   ██║██║  ██║█████╗  ██╔████╔██║███████║   ██║   █████╗
+╚██████╗╚██████╔╝██████╔╝███████╗██║ ╚═╝ ██║██║  ██║   ██║   ███████╗</pre>
+  <div class="scroll-hint"><span>Scroll to explore</span><div class="scroll-arrow"></div></div>
+</section>
+
+<!-- ═══════════════════════════════ TOC ═══════════════════════════════════ -->
+<nav class="toc-bar">
+  <a href="#overview">Overview</a>
+  <a href="#structure">Structure</a>
+  <a href="#functional-flow">Functional Flow</a>
+  <a href="#technical-flow">Technical Flow</a>
+  <a href="#arch-diagram">Architecture</a>
+  <a href="#data-flow">Data Flow</a>
+  <a href="#program">Program.cs</a>
+  <a href="#services">Services</a>
+  <a href="#commands-detail">Commands</a>
+  <a href="#build-scripts">Build Scripts</a>
+  <a href="#config">Config</a>
+  <a href="#tech">Tech Stack</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════ 01 OVERVIEW ═══════════════════════════ -->
+<section class="section" id="overview">
+  <div class="section-label">01 · Overview</div>
+  <h2>What is Code-Cli?</h2>
+  <p>Code-Cli is a <strong>terminal-native AI coding assistant</strong> written in pure C# 12 / .NET 8. It communicates with <strong>Ollama</strong> — a local LLM runtime — via HTTP streaming, giving you a private, fast AI pair programmer that runs entirely on your own hardware.</p>
+  <p>It ships as a single self-contained executable (no .NET runtime install required on target), supports both local Ollama and Docker Ollama runtimes, and has <strong>zero NuGet package dependencies</strong>. Every feature is built on the .NET Base Class Library alone.</p>
+
+  <div class="callout">
+    <strong>Core mechanism in one sentence:</strong> Code-Cli sends a crafted system-prompt + user input as an HTTP POST to <ic>http://localhost:11434/api/generate</ic> and streams the NDJSON response token-by-token to your terminal.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 02 STRUCTURE ════════════════════════════ -->
+<section class="section" id="structure">
+  <div class="section-label">02 · Repository Structure</div>
+  <h2>File & Folder Map</h2>
+  <div class="file-tree">
+    <div class="ftr">📁 Code-Cli/  &nbsp;<span style="color:var(--muted);font-size:10.5px">— root of the repository</span></div>
+    <div class="fti1"><span class="ftfol">📁 .idea/</span><span class="ftd">— JetBrains Rider IDE project settings (not source code)</span></div>
+    <div class="fti1"><span class="ftfol">📁 src/</span><span class="ftd">— ALL C# application source files</span></div>
+    <div class="fti2"><span class="ftfol">📁 Commands/</span><span class="ftd">— One class per CLI verb: Chat, Ask, Write, Fix, Review, Explain</span></div>
+    <div class="fti2"><span class="ftfol">📁 Services/</span><span class="ftd">— OllamaService, CodeAssistantService, ConfigManager, OllamaRuntimeManager</span></div>
+    <div class="fti2"><span class="ftfol">📁 UI/</span><span class="ftd">— ConsoleUI: spinners, colors, tables, section headers</span></div>
+    <div class="fti1"><span class="ftf">📄 Program.cs</span><span class="ftd">— Entry point: arg parsing, flag extraction, routing, error handling (287 lines)</span></div>
+    <div class="fti1"><span class="ftf">📄 Code-Cli.csproj</span><span class="ftd">— MSBuild project file: target framework, output type, assembly name (18 lines)</span></div>
+    <div class="fti1"><span class="ftf">📄 Code-Cli.sln</span><span class="ftd">— Solution file for IDE integration</span></div>
+    <div class="fti1"><span class="ftf">📄 NuGet.config</span><span class="ftd">— Clears all package sources; enforces zero-dependency policy</span></div>
+    <div class="fti1"><span class="ftf">📄 build.bat</span><span class="ftd">— Windows: restore → build → publish single-file win-x64 exe (71 lines)</span></div>
+    <div class="fti1"><span class="ftf">📄 build.sh</span><span class="ftd">— Linux/macOS: auto-detects OS+arch → restore → build → publish (89 lines)</span></div>
+    <div class="fti1"><span class="ftf">📄 install.bat</span><span class="ftd">— Windows: copies exe to %USERPROFILE%\.code-cli\bin, patches user PATH in registry</span></div>
+    <div class="fti1"><span class="ftf">📄 .gitignore</span><span class="ftd">— Ignores bin/, obj/, publish/, config.json (secrets)</span></div>
+    <div class="fti1"><span class="ftf">📄 LICENSE</span><span class="ftd">— MIT License</span></div>
+    <div class="fti1"><span class="ftf">📄 README.md</span><span class="ftd">— User-facing docs, badges, install guide, command reference</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 03 FUNCTIONAL FLOW ═══════════════════════ -->
+<section class="section" id="functional-flow">
+  <div class="section-label">03 · Functional Flow</div>
+  <h2>Functional Flow — User's Perspective</h2>
+  <p>This diagram shows <strong>what happens from the user's point of view</strong> — from opening a terminal to seeing AI output on screen. No code internals, just the observable behaviour.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Functional Flow — How a User Interacts with Code-Cli</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 900 980" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00e5a0"/>
+          </marker>
+          <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#5b8eff"/>
+          </marker>
+          <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ff6b6b"/>
+          </marker>
+          <marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#ffc14e"/>
+          </marker>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+          </filter>
+        </defs>
+
+        <!-- USER NODE -->
+        <ellipse cx="450" cy="55" rx="80" ry="34" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="450" y="50" text-anchor="middle" fill="#eef1f8" font-size="12" font-weight="bold" font-family="Syne, sans-serif">👤 USER</text>
+        <text x="450" y="66" text-anchor="middle" fill="#4d5670" font-size="10">Opens terminal</text>
+
+        <!-- ARROW 1 -->
+        <line x1="450" y1="89" x2="450" y2="128" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="350" y="104" width="200" height="20" rx="4" fill="#131621" opacity=".8"/>
+        <text x="450" y="117" text-anchor="middle" fill="#00e5a0" font-size="10">types: code-cli &lt;command&gt;</text>
+
+        <!-- STEP 1: Choose Command -->
+        <rect x="170" y="132" width="560" height="60" rx="10" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="200" y="156" fill="#ffc14e" font-size="10" font-weight="bold">STEP 1 · Choose a Command</text>
+        <text x="200" y="174" fill="#c4cde0" font-size="11">chat  ·  ask  ·  write  ·  fix  ·  review  ·  explain  ·  models  ·  config  ·  --help</text>
+
+        <!-- BRANCH: Runtime Check -->
+        <line x1="450" y1="192" x2="450" y2="232" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- DIAMOND: Ollama Running? -->
+        <polygon points="450,235 530,270 450,305 370,270" fill="#131621" stroke="#5b8eff" stroke-width="1.5"/>
+        <text x="450" y="265" text-anchor="middle" fill="#c4cde0" font-size="10">Ollama</text>
+        <text x="450" y="280" text-anchor="middle" fill="#c4cde0" font-size="10">running?</text>
+
+        <!-- YES path -->
+        <line x1="530" y1="270" x2="620" y2="270" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="575" y="263" text-anchor="middle" fill="#00e5a0" font-size="10">YES</text>
+
+        <!-- ERROR path (NO) -->
+        <line x1="370" y1="270" x2="200" y2="270" stroke="#ff6b6b" stroke-width="1.5"/>
+        <line x1="200" y1="270" x2="200" y2="310" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text x="285" y="263" text-anchor="middle" fill="#ff6b6b" font-size="10">NO</text>
+        <rect x="120" y="312" width="160" height="50" rx="8" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="200" y="332" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">Error shown</text>
+        <text x="200" y="348" text-anchor="middle" fill="#4d5670" font-size="10">Fix steps printed</text>
+        <text x="200" y="362" text-anchor="middle" fill="#4d5670" font-size="10">Exit code 1</text>
+
+        <!-- COMMAND BOXES (YES branch) -->
+        <rect x="620" y="235" width="240" height="70" rx="10" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="740" y="258" text-anchor="middle" fill="#82aaff" font-size="10" font-weight="bold">STEP 2 · Command Executes</text>
+        <text x="740" y="275" text-anchor="middle" fill="#c4cde0" font-size="10">chat → REPL loop starts</text>
+        <text x="740" y="290" text-anchor="middle" fill="#c4cde0" font-size="10">others → single operation</text>
+
+        <!-- Arrow down from command -->
+        <line x1="740" y1="305" x2="740" y2="345" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- FOR FILE COMMANDS -->
+        <rect x="620" y="348" width="240" height="60" rx="10" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="740" y="368" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">STEP 3 · For file commands</text>
+        <text x="740" y="385" text-anchor="middle" fill="#c4cde0" font-size="10">fix / review / explain</text>
+        <text x="740" y="400" text-anchor="middle" fill="#c4cde0" font-size="10">→ reads file from disk</text>
+
+        <!-- Arrow -->
+        <line x1="740" y1="408" x2="740" y2="448" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- AI CALL -->
+        <rect x="590" y="451" width="300" height="70" rx="10" fill="#131621" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="740" y="473" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">STEP 4 · AI Request Sent</text>
+        <text x="740" y="490" text-anchor="middle" fill="#c4cde0" font-size="10">HTTP POST → Ollama :11434</text>
+        <text x="740" y="507" text-anchor="middle" fill="#c4cde0" font-size="10">system prompt + user input</text>
+
+        <!-- Arrow -->
+        <line x1="740" y1="521" x2="740" y2="561" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- STREAMING -->
+        <rect x="590" y="564" width="300" height="70" rx="10" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.5"/>
+        <text x="740" y="586" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">STEP 5 · Response Streams</text>
+        <text x="740" y="603" text-anchor="middle" fill="#c4cde0" font-size="10">tokens arrive one by one</text>
+        <text x="740" y="620" text-anchor="middle" fill="#c4cde0" font-size="10">printed live to terminal</text>
+
+        <!-- Arrow -->
+        <line x1="740" y1="634" x2="740" y2="674" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- OUTPUT CHOICE -->
+        <polygon points="740,677 820,710 740,743 660,710" fill="#131621" stroke="#5b8eff" stroke-width="1.5"/>
+        <text x="740" y="705" text-anchor="middle" fill="#c4cde0" font-size="10">--output</text>
+        <text x="740" y="720" text-anchor="middle" fill="#c4cde0" font-size="10">flag?</text>
+
+        <!-- Save file path -->
+        <line x1="820" y1="710" x2="870" y2="710" stroke="#ffc14e" stroke-width="1.5"/>
+        <line x1="870" y1="710" x2="870" y2="780" stroke="#ffc14e" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="848" y="703" text-anchor="middle" fill="#ffc14e" font-size="10">YES</text>
+        <rect x="820" y="783" width="100" height="44" rx="8" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1"/>
+        <text x="870" y="803" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">File saved</text>
+        <text x="870" y="819" text-anchor="middle" fill="#4d5670" font-size="10">+ printed</text>
+
+        <!-- No save path -->
+        <line x1="740" y1="743" x2="740" y2="783" stroke="#5b8eff" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <text x="703" y="767" text-anchor="middle" fill="#5b8eff" font-size="10">NO</text>
+        <rect x="660" y="783" width="160" height="44" rx="8" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="740" y="803" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">Console only</text>
+        <text x="740" y="819" text-anchor="middle" fill="#4d5670" font-size="10">output printed</text>
+
+        <!-- EXIT -->
+        <line x1="740" y1="827" x2="740" y2="867" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <ellipse cx="740" cy="890" rx="90" ry="30" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="740" y="887" text-anchor="middle" fill="#00e5a0" font-size="11" font-weight="bold">Exit code 0</text>
+        <text x="740" y="902" text-anchor="middle" fill="#4d5670" font-size="10">Success</text>
+
+        <!-- CHAT LOOP special note -->
+        <rect x="30" y="400" width="230" height="120" rx="10" fill="#131621" stroke="#c084fc" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="145" y="422" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">💬 chat mode is different</text>
+        <text x="145" y="440" text-anchor="middle" fill="#4d5670" font-size="10">Enters an infinite REPL loop</text>
+        <text x="145" y="456" text-anchor="middle" fill="#4d5670" font-size="10">Keeps full conversation history</text>
+        <text x="145" y="472" text-anchor="middle" fill="#4d5670" font-size="10">Inline commands: /fix /review</text>
+        <text x="145" y="488" text-anchor="middle" fill="#4d5670" font-size="10">/explain /model  +  clear/exit</text>
+        <text x="145" y="504" text-anchor="middle" fill="#4d5670" font-size="10">Ctrl+C → graceful cancel</text>
+
+        <!-- Legend -->
+        <rect x="30" y="560" width="230" height="130" rx="8" fill="#131621" stroke="#252a3b" stroke-width="1"/>
+        <text x="145" y="582" text-anchor="middle" fill="#4d5670" font-size="10" font-weight="bold">LEGEND</text>
+        <line x1="50" y1="598" x2="90" y2="598" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="100" y="602" fill="#c4cde0" font-size="10">Normal flow</text>
+        <line x1="50" y1="618" x2="90" y2="618" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text x="100" y="622" fill="#c4cde0" font-size="10">Error path</text>
+        <line x1="50" y1="638" x2="90" y2="638" stroke="#ffc14e" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="100" y="642" fill="#c4cde0" font-size="10">Save to file</text>
+        <rect x="50" y="650" width="20" height="12" rx="3" fill="#131621" stroke="#5b8eff" stroke-width="1"/>
+        <text x="80" y="661" fill="#c4cde0" font-size="10">Decision diamond</text>
+        <rect x="50" y="670" width="20" height="12" rx="3" fill="#131621" stroke="#00e5a0" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="80" y="681" fill="#c4cde0" font-size="10">Special / async mode</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 04 TECHNICAL FLOW ═══════════════════════ -->
+<section class="section" id="technical-flow">
+  <div class="section-label">04 · Technical Flow</div>
+  <h2>Technical Flow — What the Code Does</h2>
+  <p>This shows the <strong>internal code execution path</strong> — which classes are instantiated, which methods are called, and how data moves through the system in the exact sequence it happens at runtime.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Technical Execution Path — code-cli fix MyService.cs --error "NRE at line 42"</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 920 1100" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="t1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#00e5a0"/></marker>
+          <marker id="t2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#5b8eff"/></marker>
+          <marker id="t3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#c084fc"/></marker>
+          <marker id="t4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ffc14e"/></marker>
+          <marker id="t5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ff6b6b"/></marker>
+        </defs>
+
+        <!-- COLUMN HEADERS -->
+        <rect x="20" y="10" width="130" height="30" rx="5" fill="#131621" stroke="#00e5a0" stroke-width="1"/>
+        <text x="85" y="30" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">Program.cs</text>
+
+        <rect x="180" y="10" width="170" height="30" rx="5" fill="#131621" stroke="#ffc14e" stroke-width="1"/>
+        <text x="265" y="30" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">OllamaRuntimeManager</text>
+
+        <rect x="380" y="10" width="160" height="30" rx="5" fill="#131621" stroke="#5b8eff" stroke-width="1"/>
+        <text x="460" y="30" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">Command Classes</text>
+
+        <rect x="570" y="10" width="170" height="30" rx="5" fill="#131621" stroke="#c084fc" stroke-width="1"/>
+        <text x="655" y="30" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">CodeAssistantService</text>
+
+        <rect x="770" y="10" width="130" height="30" rx="5" fill="#131621" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="835" y="30" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">OllamaService</text>
+
+        <!-- LIFELINES -->
+        <line x1="85" y1="40" x2="85" y2="1080" stroke="#00e5a0" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="265" y1="40" x2="265" y2="1080" stroke="#ffc14e" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="460" y1="40" x2="460" y2="1080" stroke="#5b8eff" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="655" y1="40" x2="655" y2="1080" stroke="#c084fc" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+        <line x1="835" y1="40" x2="835" y2="1080" stroke="#ff6b6b" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+
+        <!-- STEP 1: Startup -->
+        <rect x="20" y="58" width="130" height="44" rx="6" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="85" y="76" text-anchor="middle" fill="#00e5a0" font-size="9.5" font-weight="bold">1. Process Starts</text>
+        <text x="85" y="91" text-anchor="middle" fill="#4d5670" font-size="9">CancellationTokenSource</text>
+        <text x="85" y="103" text-anchor="middle" fill="#4d5670" font-size="9">Console.CancelKeyPress +=</text>
+
+        <!-- STEP 2: Arg Parsing -->
+        <rect x="20" y="122" width="130" height="54" rx="6" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="85" y="140" text-anchor="middle" fill="#00e5a0" font-size="9.5" font-weight="bold">2. Arg Parsing</text>
+        <text x="85" y="156" text-anchor="middle" fill="#4d5670" font-size="9">GetFlag(args,"--model")</text>
+        <text x="85" y="169" text-anchor="middle" fill="#4d5670" font-size="9">GetFlag(args,"--error")</text>
+        <text x="85" y="182" text-anchor="middle" fill="#4d5670" font-size="9">StripFlags(args) → cleanArgs</text>
+
+        <!-- STEP 3: Load Config -->
+        <rect x="20" y="196" width="130" height="44" rx="6" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="85" y="214" text-anchor="middle" fill="#00e5a0" font-size="9.5" font-weight="bold">3. Load Config</text>
+        <text x="85" y="230" text-anchor="middle" fill="#4d5670" font-size="9">ConfigManager.Load()</text>
+        <text x="85" y="243" text-anchor="middle" fill="#4d5670" font-size="9">CLI flags overlay config</text>
+
+        <!-- STEP 4: Runtime Manager -->
+        <line x1="155" y1="265" x2="240" y2="265" stroke="#ffc14e" stroke-width="1.5" marker-end="url(#t4)"/>
+        <text x="200" y="258" text-anchor="middle" fill="#ffc14e" font-size="9">new OllamaRuntimeManager(config)</text>
+        <rect x="180" y="272" width="170" height="44" rx="6" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.2"/>
+        <text x="265" y="290" text-anchor="middle" fill="#ffc14e" font-size="9.5" font-weight="bold">4. Runtime Check</text>
+        <text x="265" y="305" text-anchor="middle" fill="#4d5670" font-size="9">UsesDocker? → PrepareAsync()</text>
+        <text x="265" y="317" text-anchor="middle" fill="#4d5670" font-size="9">Local: skip Docker block</text>
+
+        <!-- STEP 5: Health Check -->
+        <line x1="155" y1="337" x2="790" y2="337" stroke="#ff6b6b" stroke-width="1.2" stroke-dasharray="4,2"/>
+        <text x="500" y="330" text-anchor="middle" fill="#ff6b6b" font-size="9">ollama.IsRunningAsync() → GET /api/tags</text>
+        <line x1="790" y1="337" x2="790" y2="355" stroke="#ff6b6b" stroke-width="1.2"/>
+        <rect x="770" y="358" width="130" height="34" rx="6" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="835" y="373" text-anchor="middle" fill="#ff6b6b" font-size="9.5" font-weight="bold">5. Health Check</text>
+        <text x="835" y="386" text-anchor="middle" fill="#4d5670" font-size="9">200 OK? → proceed</text>
+        <line x1="790" y1="392" x2="790" y2="410" stroke="#ff6b6b" stroke-width="1.2"/>
+        <line x1="155" y1="410" x2="790" y2="410" stroke="#ff6b6b" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#t5)"/>
+        <text x="490" y="405" text-anchor="middle" fill="#ff6b6b" font-size="9">bool ollamaRunning = true / false</text>
+
+        <!-- STEP 6: Route to Command -->
+        <rect x="20" y="425" width="130" height="34" rx="6" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="85" y="440" text-anchor="middle" fill="#00e5a0" font-size="9.5" font-weight="bold">6. switch("fix")</text>
+        <text x="85" y="453" text-anchor="middle" fill="#4d5670" font-size="9">→ new FixCommand(assistant)</text>
+
+        <!-- Arrow to FixCommand -->
+        <line x1="155" y1="442" x2="415" y2="442" stroke="#5b8eff" stroke-width="1.5" marker-end="url(#t2)"/>
+        <text x="285" y="435" text-anchor="middle" fill="#5b8eff" font-size="9">ExecuteAsync(file, errMsg, output, token)</text>
+        <rect x="380" y="452" width="160" height="54" rx="6" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="460" y="470" text-anchor="middle" fill="#5b8eff" font-size="9.5" font-weight="bold">7. FixCommand</text>
+        <text x="460" y="484" text-anchor="middle" fill="#4d5670" font-size="9">File.ReadAllTextAsync(path)</text>
+        <text x="460" y="497" text-anchor="middle" fill="#4d5670" font-size="9">sourceCode = file contents</text>
+        <text x="460" y="510" text-anchor="middle" fill="#4d5670" font-size="9">ConsoleUI.SectionHeader()</text>
+
+        <!-- Arrow to CodeAssistantService -->
+        <line x1="540" y1="525" x2="608" y2="525" stroke="#c084fc" stroke-width="1.5" marker-end="url(#t3)"/>
+        <text x="574" y="518" text-anchor="middle" fill="#c084fc" font-size="9">FixBugsAsync(code, error)</text>
+        <rect x="570" y="532" width="170" height="74" rx="6" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.2"/>
+        <text x="655" y="550" text-anchor="middle" fill="#c084fc" font-size="9.5" font-weight="bold">8. CodeAssistantService</text>
+        <text x="655" y="564" text-anchor="middle" fill="#4d5670" font-size="9">Builds expert system prompt:</text>
+        <text x="655" y="577" text-anchor="middle" fill="#c3e88d" font-size="8.5">"You are an expert bug fixer..."</text>
+        <text x="655" y="590" text-anchor="middle" fill="#4d5670" font-size="9">+ source code + error context</text>
+        <text x="655" y="603" text-anchor="middle" fill="#4d5670" font-size="9">→ calls StreamGenerateAsync()</text>
+
+        <!-- Arrow to OllamaService -->
+        <line x1="740" y1="569" x2="793" y2="569" stroke="#ff6b6b" stroke-width="1.5" marker-end="url(#t5)"/>
+        <text x="768" y="562" text-anchor="middle" fill="#ff6b6b" font-size="8">HTTP POST</text>
+        <rect x="770" y="578" width="130" height="104" rx="6" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="835" y="596" text-anchor="middle" fill="#ff6b6b" font-size="9.5" font-weight="bold">9. OllamaService</text>
+        <text x="835" y="610" text-anchor="middle" fill="#4d5670" font-size="9">POST /api/generate</text>
+        <text x="835" y="623" text-anchor="middle" fill="#c3e88d" font-size="8.5">{model, prompt, stream:true}</text>
+        <text x="835" y="636" text-anchor="middle" fill="#4d5670" font-size="9">ResponseHeadersRead mode</text>
+        <text x="835" y="649" text-anchor="middle" fill="#4d5670" font-size="9">ReadLine() → NDJSON line</text>
+        <text x="835" y="662" text-anchor="middle" fill="#4d5670" font-size="9">Parse "response" field</text>
+        <text x="835" y="675" text-anchor="middle" fill="#4d5670" font-size="9">yield token (IAsyncEnumerable)</text>
+
+        <!-- Streaming back -->
+        <line x1="770" y1="700" x2="540" y2="700" stroke="#00e5a0" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#t1)"/>
+        <text x="655" y="693" text-anchor="middle" fill="#00e5a0" font-size="9">await foreach token → Console.Write()</text>
+
+        <!-- Back to command for output -->
+        <line x1="540" y1="720" x2="460" y2="720" stroke="#00e5a0" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#t1)"/>
+
+        <!-- STEP 10: Output -->
+        <rect x="380" y="730" width="160" height="54" rx="6" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="460" y="748" text-anchor="middle" fill="#5b8eff" font-size="9.5" font-weight="bold">10. Output Handling</text>
+        <text x="460" y="762" text-anchor="middle" fill="#4d5670" font-size="9">if (outputFile != null)</text>
+        <text x="460" y="776" text-anchor="middle" fill="#4d5670" font-size="9">File.WriteAllTextAsync(path)</text>
+
+        <!-- Back to Program.cs -->
+        <line x1="380" y1="775" x2="155" y2="775" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#t1)"/>
+        <text x="265" y="768" text-anchor="middle" fill="#4d5670" font-size="9">return to Program.cs</text>
+
+        <!-- EXIT -->
+        <rect x="20" y="785" width="130" height="44" rx="6" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="85" y="803" text-anchor="middle" fill="#00e5a0" font-size="9.5" font-weight="bold">11. Process Exit</text>
+        <text x="85" y="816" text-anchor="middle" fill="#4d5670" font-size="9">Console.WriteLine()</text>
+        <text x="85" y="829" text-anchor="middle" fill="#4d5670" font-size="9">return exitCode (0)</text>
+
+        <!-- Side note: Cancellation -->
+        <rect x="30" y="865" width="850" height="50" rx="8" fill="#131621" stroke="#252a3b" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="460" y="886" text-anchor="middle" fill="#4d5670" font-size="9" font-weight="bold">⌨ If Ctrl+C pressed at any point during streaming:</text>
+        <text x="460" y="902" text-anchor="middle" fill="#4d5670" font-size="9">cts.Cancel() fires → OperationCanceledException propagates → catch block → Console.WriteLine() + exitCode = 130</text>
+
+        <!-- Error path note -->
+        <rect x="30" y="930" width="850" height="50" rx="8" fill="#131621" stroke="#ff6b6b" stroke-width="1" stroke-dasharray="5,3"/>
+        <text x="460" y="951" text-anchor="middle" fill="#ff6b6b" font-size="9" font-weight="bold">⚠ If Ollama health check fails (step 5 returns false):</text>
+        <text x="460" y="967" text-anchor="middle" fill="#4d5670" font-size="9">ConsoleUI.Error() + runtime.GetStartupHelp() printed line-by-line → return 1 (all subsequent steps skipped)</text>
+
+        <!-- Sequence numbers annotation -->
+        <rect x="30" y="995" width="850" height="80" rx="8" fill="#0c0e14" stroke="#252a3b" stroke-width="1"/>
+        <text x="460" y="1016" text-anchor="middle" fill="#4d5670" font-size="9.5" font-weight="bold">Execution Sequence Summary</text>
+        <text x="85" y="1036" fill="#00e5a0" font-size="9">1. Startup</text>
+        <text x="85" y="1052" fill="#00e5a0" font-size="9">2. Parse args</text>
+        <text x="85" y="1068" fill="#00e5a0" font-size="9">3. Load config</text>
+        <text x="265" y="1036" fill="#ffc14e" font-size="9">4. Runtime check</text>
+        <text x="265" y="1052" fill="#ffc14e" font-size="9">5. Health check</text>
+        <text x="265" y="1068" fill="#ffc14e" font-size="9">6. Route command</text>
+        <text x="460" y="1036" fill="#5b8eff" font-size="9">7. Read file (fix/review/explain)</text>
+        <text x="460" y="1052" fill="#5b8eff" font-size="9">8. Build AI prompt</text>
+        <text x="655" y="1036" fill="#c084fc" font-size="9">9. HTTP POST → Ollama</text>
+        <text x="655" y="1052" fill="#c084fc" font-size="9">10. Stream tokens → console</text>
+        <text x="655" y="1068" fill="#ff6b6b" font-size="9">11. Save output + exit 0</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 05 ARCHITECTURE ════════════════════════════ -->
+<section class="section" id="arch-diagram">
+  <div class="section-label">05 · Architecture Diagram</div>
+  <h2>System Architecture — Layered View</h2>
+  <p>Three clearly separated layers: <strong>CLI layer</strong> (routing + UX), <strong>Logic layer</strong> (commands + services), <strong>Runtime layer</strong> (Ollama + LLM).</p>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Layered Architecture — Code-Cli v2.0</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 860 660" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="a1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e5a0"/></marker>
+          <marker id="a2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#5b8eff"/></marker>
+          <marker id="a3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#c084fc"/></marker>
+        </defs>
+
+        <!-- LAYER 1: CLI -->
+        <rect x="20" y="20" width="820" height="110" rx="12" fill="#0f1218" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="40" y="44" fill="#00e5a0" font-size="10" font-weight="bold" letter-spacing="2">LAYER 1 · CLI / ENTRY POINT</text>
+
+        <rect x="40" y="55" width="780" height="60" rx="8" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="430" y="78" text-anchor="middle" fill="#eef1f8" font-size="12" font-weight="bold" font-family="Syne, sans-serif">Program.cs — Top-Level Entry Point</text>
+        <text x="430" y="96" text-anchor="middle" fill="#4d5670" font-size="10">args[] parsing · GetFlag() · StripFlags() · ConfigManager.Load() · switch(command) routing · global error handling</text>
+        <text x="430" y="110" text-anchor="middle" fill="#4d5670" font-size="10">CancellationTokenSource · Ctrl+C handler · OllamaRuntimeManager instantiation · health check · exit code</text>
+
+        <!-- Arrow Layer1 → Layer2 -->
+        <line x1="430" y1="130" x2="430" y2="158" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#a1)"/>
+        <text x="470" y="148" fill="#4d5670" font-size="9">routes command</text>
+
+        <!-- LAYER 2: Commands + Services -->
+        <rect x="20" y="162" width="820" height="270" rx="12" fill="#0f1218" stroke="#5b8eff" stroke-width="1.5"/>
+        <text x="40" y="186" fill="#5b8eff" font-size="10" font-weight="bold" letter-spacing="2">LAYER 2 · BUSINESS LOGIC — Commands + Services</text>
+
+        <!-- Commands row -->
+        <text x="40" y="210" fill="#4d5670" font-size="9" letter-spacing="1">COMMANDS  (src/Commands/)</text>
+        <rect x="40" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="94" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">ChatCommand</text>
+        <text x="94" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">REPL loop</text>
+        <text x="94" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">conversation history</text>
+
+        <rect x="160" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="214" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">AskCommand</text>
+        <text x="214" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">single Q&amp;A</text>
+        <text x="214" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">join args as question</text>
+
+        <rect x="280" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="334" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">WriteCommand</text>
+        <text x="334" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">code generation</text>
+        <text x="334" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">from description</text>
+
+        <rect x="400" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="454" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">FixCommand</text>
+        <text x="454" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">reads file</text>
+        <text x="454" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">+ error context</text>
+
+        <rect x="520" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="574" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">ReviewCommand</text>
+        <text x="574" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">SOLID/security</text>
+        <text x="574" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">audit report</text>
+
+        <rect x="640" y="216" width="108" height="54" rx="7" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="694" y="237" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">ExplainCommand</text>
+        <text x="694" y="251" text-anchor="middle" fill="#4d5670" font-size="8.5">line-by-line</text>
+        <text x="694" y="263" text-anchor="middle" fill="#4d5670" font-size="8.5">walkthrough</text>
+
+        <!-- Service layer arrows -->
+        <line x1="94" y1="270" x2="94" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+        <line x1="214" y1="270" x2="214" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+        <line x1="334" y1="270" x2="334" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+        <line x1="454" y1="270" x2="454" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+        <line x1="574" y1="270" x2="574" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+        <line x1="694" y1="270" x2="694" y2="298" stroke="#c084fc" stroke-width="1" marker-end="url(#a3)"/>
+
+        <!-- Services row -->
+        <text x="40" y="318" fill="#4d5670" font-size="9" letter-spacing="1">SERVICES  (src/Services/)</text>
+        <rect x="40" y="324" width="228" height="90" rx="8" fill="#131621" stroke="#c084fc" stroke-width="1.2"/>
+        <text x="154" y="346" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">CodeAssistantService</text>
+        <text x="154" y="362" text-anchor="middle" fill="#4d5670" font-size="8.5">Selects expert system prompt per command</text>
+        <text x="154" y="376" text-anchor="middle" fill="#c3e88d" font-size="8">"You are an expert C# bug fixer..."</text>
+        <text x="154" y="390" text-anchor="middle" fill="#c3e88d" font-size="8">"You are a code reviewer..."</text>
+        <text x="154" y="404" text-anchor="middle" fill="#4d5670" font-size="8.5">Calls OllamaService.StreamGenerateAsync()</text>
+
+        <rect x="280" y="324" width="228" height="90" rx="8" fill="#131621" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="394" y="346" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">OllamaService</text>
+        <text x="394" y="362" text-anchor="middle" fill="#4d5670" font-size="8.5">HttpClient (singleton)</text>
+        <text x="394" y="376" text-anchor="middle" fill="#4d5670" font-size="8.5">POST /api/generate → stream:true</text>
+        <text x="394" y="390" text-anchor="middle" fill="#4d5670" font-size="8.5">ReadLine() → parse NDJSON</text>
+        <text x="394" y="404" text-anchor="middle" fill="#4d5670" font-size="8.5">yield each token → IAsyncEnumerable</text>
+
+        <rect x="520" y="324" width="228" height="90" rx="8" fill="#131621" stroke="#ffc14e" stroke-width="1.2"/>
+        <text x="634" y="346" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">OllamaRuntimeManager</text>
+        <text x="634" y="362" text-anchor="middle" fill="#4d5670" font-size="8.5">Reads config.Runtime ("local"/"docker")</text>
+        <text x="634" y="376" text-anchor="middle" fill="#4d5670" font-size="8.5">Docker: docker run -d --name code-cli-ollama</text>
+        <text x="634" y="390" text-anchor="middle" fill="#4d5670" font-size="8.5">PrepareAsync() → start container</text>
+        <text x="634" y="404" text-anchor="middle" fill="#4d5670" font-size="8.5">GetStartupHelp() → error instructions</text>
+
+        <!-- UI note -->
+        <rect x="760" y="324" width="68" height="90" rx="8" fill="#131621" stroke="#252a3b" stroke-width="1"/>
+        <text x="794" y="355" text-anchor="middle" fill="#4d5670" font-size="9" font-weight="bold">ConsoleUI</text>
+        <text x="794" y="370" text-anchor="middle" fill="#4d5670" font-size="8">Spinner</text>
+        <text x="794" y="384" text-anchor="middle" fill="#4d5670" font-size="8">Colors</text>
+        <text x="794" y="398" text-anchor="middle" fill="#4d5670" font-size="8">Tables</text>
+        <text x="794" y="412" text-anchor="middle" fill="#4d5670" font-size="8">Headers</text>
+
+        <!-- Arrow Layer2 → Layer3 -->
+        <line x1="394" y1="414" x2="394" y2="448" stroke="#5b8eff" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="440" y="436" fill="#4d5670" font-size="9">HTTP POST stream</text>
+
+        <!-- LAYER 3: Runtime -->
+        <rect x="20" y="452" width="820" height="190" rx="12" fill="#0f1218" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="40" y="476" fill="#ff6b6b" font-size="10" font-weight="bold" letter-spacing="2">LAYER 3 · RUNTIME — Ollama + LLM</text>
+
+        <!-- Local Ollama -->
+        <rect x="40" y="490" width="280" height="130" rx="8" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="180" y="512" text-anchor="middle" fill="#eef1f8" font-size="10" font-weight="bold">🖥 Local Ollama</text>
+        <text x="180" y="529" text-anchor="middle" fill="#4d5670" font-size="9">ollama serve → :11434</text>
+        <text x="180" y="543" text-anchor="middle" fill="#4d5670" font-size="9">Installed via installer (Win/Mac/Linux)</text>
+        <text x="180" y="557" text-anchor="middle" fill="#4d5670" font-size="9">Models at ~/.ollama/models/</text>
+        <text x="180" y="575" text-anchor="middle" fill="#c3e88d" font-size="9">qwen2.5-coder:7b  ← default</text>
+        <text x="180" y="589" text-anchor="middle" fill="#c3e88d" font-size="9">qwen2.5-coder:1.5b / 14b</text>
+        <text x="180" y="603" text-anchor="middle" fill="#c3e88d" font-size="9">deepseek-coder:6.7b / codellama:7b</text>
+
+        <!-- Docker Ollama -->
+        <rect x="340" y="490" width="280" height="130" rx="8" fill="#1a1e2c" stroke="#252a3b" stroke-width="1"/>
+        <text x="480" y="512" text-anchor="middle" fill="#eef1f8" font-size="10" font-weight="bold">🐳 Docker Ollama</text>
+        <text x="480" y="529" text-anchor="middle" fill="#4d5670" font-size="9">docker run -d --name code-cli-ollama</text>
+        <text x="480" y="543" text-anchor="middle" fill="#4d5670" font-size="9">-p 11434:11434 ollama/ollama:latest</text>
+        <text x="480" y="557" text-anchor="middle" fill="#4d5670" font-size="9">Volume: code-cli-ollama (models persist)</text>
+        <text x="480" y="571" text-anchor="middle" fill="#4d5670" font-size="9">Auto-started by OllamaRuntimeManager</text>
+        <text x="480" y="589" text-anchor="middle" fill="#c3e88d" font-size="9">docker exec -it code-cli-ollama</text>
+        <text x="480" y="603" text-anchor="middle" fill="#c3e88d" font-size="9">   ollama pull qwen2.5-coder:7b</text>
+
+        <!-- API Box -->
+        <rect x="640" y="490" width="190" height="130" rx="8" fill="#131621" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="735" y="512" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">REST API (shared)</text>
+        <text x="735" y="530" text-anchor="middle" fill="#4d5670" font-size="8.5">POST /api/generate</text>
+        <text x="735" y="544" text-anchor="middle" fill="#4d5670" font-size="8.5">GET  /api/tags (health)</text>
+        <text x="735" y="558" text-anchor="middle" fill="#4d5670" font-size="8.5">NDJSON streaming</text>
+        <text x="735" y="576" text-anchor="middle" fill="#c3e88d" font-size="8.5">{"response":"token","done":false}</text>
+        <text x="735" y="590" text-anchor="middle" fill="#c3e88d" font-size="8.5">{"response":"","done":true}</text>
+        <text x="735" y="608" text-anchor="middle" fill="#4d5670" font-size="8.5">GPU/CPU inference local</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 06 DATA FLOW ════════════════════════════════ -->
+<section class="section" id="data-flow">
+  <div class="section-label">06 · Data Flow</div>
+  <h2>Data Flow — How Information Transforms</h2>
+  <p>Tracks exactly <strong>what data</strong> exists at each stage, how it's shaped, and what transforms it.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Data Flow — Transformation from CLI Args → AI Response → File/Console</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="df1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e5a0"/></marker>
+        </defs>
+
+        <!-- DATA STAGE 1: Raw args -->
+        <rect x="20" y="30" width="180" height="100" rx="10" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="110" y="52" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">① Raw args[]</text>
+        <text x="110" y="70" text-anchor="middle" fill="#c3e88d" font-size="9">"fix"</text>
+        <text x="110" y="84" text-anchor="middle" fill="#c3e88d" font-size="9">"MyService.cs"</text>
+        <text x="110" y="98" text-anchor="middle" fill="#c3e88d" font-size="9">"--error"</text>
+        <text x="110" y="112" text-anchor="middle" fill="#c3e88d" font-size="9">"NRE at line 42"</text>
+        <text x="110" y="128" text-anchor="middle" fill="#4d5670" font-size="8.5">string[]</text>
+
+        <!-- Arrow -->
+        <line x1="200" y1="80" x2="238" y2="80" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+        <text x="219" y="73" text-anchor="middle" fill="#4d5670" font-size="8">GetFlag()</text>
+        <text x="219" y="87" fill="#4d5670" font-size="8">StripFlags()</text>
+
+        <!-- DATA STAGE 2: Parsed -->
+        <rect x="240" y="30" width="175" height="100" rx="10" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.5"/>
+        <text x="327" y="52" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">② Parsed Data</text>
+        <text x="327" y="69" text-anchor="middle" fill="#c4cde0" font-size="9">command = "fix"</text>
+        <text x="327" y="83" text-anchor="middle" fill="#c4cde0" font-size="9">filePath = "MyService.cs"</text>
+        <text x="327" y="97" text-anchor="middle" fill="#c4cde0" font-size="9">errMsg = "NRE at line 42"</text>
+        <text x="327" y="111" text-anchor="middle" fill="#c4cde0" font-size="9">outputFile = null</text>
+        <text x="327" y="128" text-anchor="middle" fill="#4d5670" font-size="8.5">string, string?, string?</text>
+
+        <!-- Arrow -->
+        <line x1="415" y1="80" x2="453" y2="80" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+        <text x="434" y="72" text-anchor="middle" fill="#4d5670" font-size="8">load config</text>
+        <text x="434" y="88" fill="#4d5670" font-size="8">+ overlay</text>
+
+        <!-- DATA STAGE 3: Config -->
+        <rect x="455" y="30" width="170" height="100" rx="10" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.5"/>
+        <text x="540" y="52" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">③ AppConfig</text>
+        <text x="540" y="69" text-anchor="middle" fill="#c4cde0" font-size="9">Model = "qwen2.5-coder:7b"</text>
+        <text x="540" y="83" text-anchor="middle" fill="#c4cde0" font-size="9">Host = "http://localhost:11434"</text>
+        <text x="540" y="97" text-anchor="middle" fill="#c4cde0" font-size="9">Runtime = "local"</text>
+        <text x="540" y="111" text-anchor="middle" fill="#c4cde0" font-size="9">Stream = true</text>
+        <text x="540" y="128" text-anchor="middle" fill="#4d5670" font-size="8.5">AppConfig record/class</text>
+
+        <!-- Arrow down to File Read -->
+        <line x1="327" y1="130" x2="327" y2="170" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+        <text x="365" y="155" fill="#4d5670" font-size="8">File.ReadAllTextAsync()</text>
+
+        <!-- DATA STAGE 4: File Content -->
+        <rect x="200" y="173" width="260" height="80" rx="10" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.5"/>
+        <text x="330" y="195" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">④ Source File Content</text>
+        <text x="330" y="212" text-anchor="middle" fill="#c4cde0" font-size="9">sourceCode = "public class MyService {..."</text>
+        <text x="330" y="228" text-anchor="middle" fill="#4d5670" font-size="8.5">Full text of MyService.cs as string</text>
+        <text x="330" y="244" text-anchor="middle" fill="#4d5670" font-size="8.5">Could be 50 lines or 5000 lines</text>
+
+        <!-- Arrow to prompt -->
+        <line x1="330" y1="253" x2="330" y2="293" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+        <text x="400" y="276" fill="#4d5670" font-size="8">CodeAssistantService.BuildPrompt()</text>
+
+        <!-- DATA STAGE 5: Prompt -->
+        <rect x="100" y="296" width="520" height="90" rx="10" fill="#131621" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="360" y="318" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">⑤ Complete AI Prompt (sent to Ollama)</text>
+        <text x="360" y="336" text-anchor="middle" fill="#c3e88d" font-size="8.5">SYSTEM: "You are an expert C# bug fixer. Analyze the code, identify ALL bugs, return the fixed version..."</text>
+        <text x="360" y="351" text-anchor="middle" fill="#c4cde0" font-size="8.5">USER: "Fix this C# code:\n[entire MyService.cs content]\n\nError context: NRE at line 42"</text>
+        <text x="360" y="367" text-anchor="middle" fill="#4d5670" font-size="8.5">JSON body: {"model":"qwen2.5-coder:7b", "prompt":"...", "stream":true, "system":"..."}</text>
+        <text x="360" y="382" text-anchor="middle" fill="#4d5670" font-size="8.5">Sent as HTTP POST to http://localhost:11434/api/generate</text>
+
+        <!-- Arrow to streaming -->
+        <line x1="360" y1="386" x2="360" y2="416" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+        <text x="440" y="405" fill="#4d5670" font-size="8">NDJSON stream response line by line</text>
+
+        <!-- DATA STAGE 6: Tokens -->
+        <rect x="100" y="419" width="520" height="80" rx="10" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="360" y="441" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">⑥ Streaming NDJSON Response Tokens</text>
+        <text x="360" y="459" text-anchor="middle" fill="#c3e88d" font-size="8.5">{"model":"qwen2.5-coder:7b","response":"pub","done":false}  ← each line</text>
+        <text x="360" y="474" text-anchor="middle" fill="#c3e88d" font-size="8.5">{"response":"lic","done":false} → {"response":" class","done":false} → ... → {"done":true}</text>
+        <text x="360" y="489" text-anchor="middle" fill="#4d5670" font-size="8.5">Each token: Console.Write(token) → live terminal output</text>
+
+        <!-- Arrow to output -->
+        <line x1="360" y1="499" x2="360" y2="529" stroke="#00e5a0" stroke-width="1.5" marker-end="url(#df1)"/>
+
+        <!-- DATA STAGE 7: Final output -->
+        <rect x="100" y="532" width="240" height="22" rx="6" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1"/>
+        <text x="220" y="547" text-anchor="middle" fill="#5b8eff" font-size="9">⑦a Console output (always)</text>
+        <rect x="380" y="532" width="240" height="22" rx="6" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1"/>
+        <text x="500" y="547" text-anchor="middle" fill="#ffc14e" font-size="9">⑦b File.WriteAllTextAsync() (if --output)</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 07 PROGRAM.CS ══════════════════════════════ -->
+<section class="section" id="program">
+  <div class="section-label">07 · Program.cs</div>
+  <h2>Program.cs — Line by Line</h2>
+  <p>The entire entry point in 287 lines of C# 9+ top-level statements. No class wrapper. No explicit <ic>Main()</ic> method. The compiler generates this automatically.</p>
+
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="cfn">📄 Program.cs</div>
+      <div class="cfm">287 lines · 10.1 KB · C# 12 Top-Level Statements</div>
+    </div>
+    <div class="code-scroll">
+      <table class="code-table">
+        <tr class="hl">
+          <td class="ln">1–3</td>
+          <td class="lc"><span class="kw">using</span> <span class="ty">CodeCli.Commands</span>;
+<span class="kw">using</span> <span class="ty">CodeCli.Services</span>;
+<span class="kw">using</span> <span class="ty">CodeCli.UI</span>;</td>
+          <td class="la">Import all three internal namespaces. Zero NuGet — these are all local classes in src/. No System.CommandLine, no Newtonsoft.Json, nothing external.</td>
+        </tr>
+        <tr>
+          <td class="ln">5–12</td>
+          <td class="lc"><span class="kw">using var</span> cts = <span class="kw">new</span> <span class="ty">CancellationTokenSource</span>();
+Console.CancelKeyPress += (_, e) => {
+  e.Cancel = <span class="kw">true</span>;
+  cts.Cancel();
+  <span class="ty">ConsoleUI</span>.<span class="mt">Warning</span>(<span class="st">"Cancelled."</span>);
+};</td>
+          <td class="la"><ic>e.Cancel = true</ic> prevents the OS from hard-killing the process. Instead it signals the token, letting all <ic>async</ic> operations observe cancellation and clean up. <ic>using var</ic> disposes the source when program exits.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">14–19</td>
+          <td class="lc"><span class="kw">string</span>? modelOverride   = <span class="mt">GetFlag</span>(args, <span class="st">"--model"</span>);
+<span class="kw">string</span>? hostOverride    = <span class="mt">GetFlag</span>(args, <span class="st">"--host"</span>);
+<span class="kw">string</span>? outputFile     = <span class="mt">GetFlag</span>(args, <span class="st">"--output"</span>);
+<span class="kw">string</span>? runtimeOverride= <span class="mt">GetFlag</span>(args, <span class="st">"--runtime"</span>);
+<span class="kw">bool</span> noStream = args.<span class="mt">Contains</span>(<span class="st">"--no-stream"</span>);
+<span class="kw">bool</span> verbose  = args.<span class="mt">Contains</span>(<span class="st">"--verbose"</span>);</td>
+          <td class="la">Parse global flags BEFORE routing so they're available to all commands. Flags with values use <ic>GetFlag()</ic>; boolean flags use simple <ic>Array.Contains()</ic>. All nullable strings — compiler enforces null checks downstream.</td>
+        </tr>
+        <tr>
+          <td class="ln">21</td>
+          <td class="lc"><span class="kw">var</span> cleanArgs = <span class="mt">StripFlags</span>(args);</td>
+          <td class="la">Remove all <ic>--flag value</ic> pairs from the array. What remains is positional: <ic>["fix", "MyService.cs"]</ic>. Without this, <ic>args[0]</ic> could be a flag name rather than the command verb.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">23–30</td>
+          <td class="lc"><span class="kw">var</span> config = <span class="ty">ConfigManager</span>.<span class="mt">Load</span>();
+<span class="kw">if</span> (modelOverride <span class="kw">is not null</span>)
+  config.Model = modelOverride;
+<span class="kw">if</span> (hostOverride <span class="kw">is not null</span>)
+  config.Host = hostOverride;
+<span class="kw">if</span> (noStream) config.Stream = <span class="kw">false</span>;</td>
+          <td class="la">Load <ic>~/.code-cli/config.json</ic> first (auto-creates on first run with defaults), then overlay CLI flags on top. CLI always wins. Uses C# 9 <ic>is not null</ic> pattern for clarity over <ic>!= null</ic>.</td>
+        </tr>
+        <tr>
+          <td class="ln">32–37</td>
+          <td class="lc"><span class="kw">if</span> (cleanArgs.Length == <span class="nm">0</span>) {
+  <span class="ty">ConsoleUI</span>.<span class="mt">PrintHelp</span>();
+  <span class="kw">return</span> <span class="nm">0</span>;
+}</td>
+          <td class="la">Guard clause: no arguments = show help and exit clean. <ic>return 0</ic> in top-level statements = process exit code 0. Simple and user-friendly.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">39–40</td>
+          <td class="lc"><span class="kw">var</span> command = cleanArgs[<span class="nm">0</span>].<span class="mt">ToLowerInvariant</span>();
+<span class="kw">var</span> runtime = <span class="kw">new</span> <span class="ty">OllamaRuntimeManager</span>(config);</td>
+          <td class="la">Lowercase the command for case-insensitive matching. Instantiate the runtime manager early — it reads <ic>config.Runtime</ic> to know whether we're in local or Docker mode.</td>
+        </tr>
+        <tr>
+          <td class="ln">42–68</td>
+          <td class="lc"><span class="kw">if</span> (command <span class="kw">is</span> <span class="st">"--help"</span> <span class="kw">or</span> <span class="st">"-h"</span> <span class="kw">or</span> <span class="st">"help"</span>)
+  { <span class="ty">ConsoleUI</span>.<span class="mt">PrintHelp</span>(); <span class="kw">return</span> <span class="nm">0</span>; }
+<span class="kw">if</span> (command <span class="kw">is</span> <span class="st">"--version"</span> <span class="kw">or</span> <span class="st">"-v"</span>)
+  { Console.<span class="mt">WriteLine</span>(<span class="st">"Code-Cli v1.0.0"</span>); <span class="kw">return</span> <span class="nm">0</span>; }
+<span class="kw">if</span> (command <span class="kw">is</span> <span class="st">"config"</span>)
+  { <span class="ty">ConfigManager</span>.<span class="mt">Print</span>(config); <span class="kw">return</span> <span class="nm">0</span>; }</td>
+          <td class="la">"No-Ollama" commands short-circuit here before any HTTP calls. Uses C# 9 pattern matching: <ic>is "a" or "b" or "c"</ic> — cleaner than multiple <ic>||</ic> conditions.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">70–72</td>
+          <td class="lc"><span class="kw">var</span> ollama    = <span class="kw">new</span> <span class="ty">OllamaService</span>(config.Host);
+<span class="kw">var</span> assistant = <span class="kw">new</span> <span class="ty">CodeAssistantService</span>(ollama, config.Model);</td>
+          <td class="la">Construct the two core service objects. <ic>OllamaService</ic> owns the <ic>HttpClient</ic>. <ic>CodeAssistantService</ic> wraps it with AI-specific prompt logic. Both are constructed once and shared across all command handlers.</td>
+        </tr>
+        <tr>
+          <td class="ln">74–100</td>
+          <td class="lc"><span class="kw">if</span> (runtime.UsesDocker) {
+  <span class="kw">var</span> prep = <span class="kw">await</span> <span class="ty">ConsoleUI</span>.<span class="mt">WithSpinnerAsync</span>(
+    <span class="st">"Preparing Docker runtime"</span>,
+    () => runtime.<span class="mt">PrepareAsync</span>(cts.Token),
+    cts.Token);
+  <span class="kw">if</span> (!prep.Success) { ... <span class="kw">return</span> <span class="nm">1</span>; }
+}</td>
+          <td class="la">Docker mode only: shows animated spinner while attempting to start/connect to the Ollama container. <ic>PrepareAsync()</ic> runs <ic>docker run</ic> or <ic>docker start</ic>. On failure, prints per-step recovery instructions.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">102–125</td>
+          <td class="lc"><span class="kw">if</span> (command <span class="kw">is</span> <span class="st">"models"</span>) {
+  <span class="kw">var</span> models = <span class="kw">await</span> <span class="ty">ConsoleUI</span>.<span class="mt">WithSpinnerAsync</span>(
+    ..., () => ollama.<span class="mt">GetAvailableModelsAsync</span>(), ...);
+  <span class="ty">ConsoleUI</span>.<span class="mt">PrintModelTable</span>(models);
+  <span class="kw">return</span> <span class="nm">0</span>;
+}</td>
+          <td class="la">Special case for <ic>models</ic>: handled before the general health check since it is the health check. Calls Ollama's list endpoint, renders a table. Suggests install command (runtime-aware: local vs docker).</td>
+        </tr>
+        <tr>
+          <td class="ln">127–145</td>
+          <td class="lc"><span class="kw">bool</span> ollamaRunning = <span class="kw">await</span> <span class="ty">ConsoleUI</span>.<span class="mt">WithSpinnerAsync</span>(
+  <span class="st">"Connecting to Ollama"</span>,
+  () => ollama.<span class="mt">IsRunningAsync</span>(),
+  cts.Token);
+<span class="kw">if</span> (!ollamaRunning) {
+  <span class="ty">ConsoleUI</span>.<span class="mt">Error</span>(...);
+  <span class="kw">foreach</span> (<span class="kw">var</span> step <span class="kw">in</span> runtime.<span class="mt">GetStartupHelp</span>())
+    Console.<span class="mt">WriteLine</span>($<span class="st">"  {step}"</span>);
+  <span class="kw">return</span> <span class="nm">1</span>;
+}</td>
+          <td class="la">Health check with spinner. <ic>IsRunningAsync()</ic> does a lightweight GET to Ollama. <ic>GetStartupHelp()</ic> returns different steps depending on runtime (local: "ollama serve" vs docker: "docker start code-cli-ollama").</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">147–240</td>
+          <td class="lc"><span class="kw">switch</span> (command) {
+  <span class="kw">case</span> <span class="st">"chat"</span>:
+    <span class="kw">await new</span> <span class="ty">ChatCommand</span>(assistant).<span class="mt">ExecuteAsync</span>(cts.Token); <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="st">"ask"</span>:
+    question = string.<span class="mt">Join</span>(<span class="st">" "</span>, cleanArgs[<span class="nm">1</span>..]);
+    <span class="kw">await new</span> <span class="ty">AskCommand</span>(assistant).<span class="mt">ExecuteAsync</span>(question, outputFile, cts.Token); <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="st">"write"</span>: ...
+  <span class="kw">case</span> <span class="st">"fix"</span>:
+    <span class="kw">await new</span> <span class="ty">FixCommand</span>(assistant).<span class="mt">ExecuteAsync</span>(
+      cleanArgs[<span class="nm">1</span>], <span class="mt">GetFlag</span>(args,<span class="st">"--error"</span>), outputFile, cts.Token); <span class="kw">break</span>;
+  <span class="kw">case</span> <span class="st">"review"</span>: ...
+  <span class="kw">case</span> <span class="st">"explain"</span>: ...
+  <span class="kw">default</span>: <span class="ty">ConsoleUI</span>.<span class="mt">Error</span>($<span class="st">"Unknown command: '{command}'"</span>); exitCode = <span class="nm">1</span>;
+}</td>
+          <td class="la">Main routing switch. Each case: (1) validates required args are present, (2) constructs the command object, (3) awaits ExecuteAsync with relevant inputs + CancellationToken. The <ic>cleanArgs[1..]</ic> range syntax (C# 8) slices the array.</td>
+        </tr>
+        <tr>
+          <td class="ln">242–258</td>
+          <td class="lc"><span class="kw">catch</span> (<span class="ty">OperationCanceledException</span>)
+  { <span class="ty">ConsoleUI</span>.<span class="mt">Warning</span>(<span class="st">"Cancelled."</span>); exitCode = <span class="nm">130</span>; }
+<span class="kw">catch</span> (<span class="ty">Exception</span> ex)
+  { <span class="ty">ConsoleUI</span>.<span class="mt">Error</span>($<span class="st">"Unexpected: {ex.Message}"</span>);
+    <span class="kw">if</span> (verbose) Console.<span class="mt">WriteLine</span>(ex.StackTrace);
+    exitCode = <span class="nm">1</span>; }</td>
+          <td class="la">Global exception handlers wrap the entire switch. Exit code 130 is the POSIX standard for Ctrl+C. Stack trace gated behind <ic>--verbose</ic> — normal users don't want noise, debuggers do.</td>
+        </tr>
+        <tr class="hl">
+          <td class="ln">263–287</td>
+          <td class="lc"><span class="kw">static string</span>? <span class="mt">GetFlag</span>(<span class="kw">string</span>[] args, <span class="kw">string</span> flag) {
+  <span class="kw">var</span> idx = Array.<span class="mt">IndexOf</span>(args, flag);
+  <span class="kw">return</span> idx >= <span class="nm">0</span> &amp;&amp; idx + <span class="nm">1</span> &lt; args.Length
+    ? args[idx + <span class="nm">1</span>] : <span class="kw">null</span>;
+}
+<span class="kw">static string</span>[] <span class="mt">StripFlags</span>(<span class="kw">string</span>[] args) {
+  <span class="kw">var</span> result = <span class="kw">new</span> List&lt;<span class="kw">string</span>&gt;();
+  <span class="kw">var</span> flagsWithValues = <span class="kw">new</span> HashSet&lt;<span class="kw">string</span>&gt;
+    { <span class="st">"--model"</span>, <span class="st">"--host"</span>, <span class="st">"--output"</span>, <span class="st">"--error"</span>, <span class="st">"--runtime"</span> };
+  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; args.Length; i++) {
+    <span class="kw">if</span> (flagsWithValues.<span class="mt">Contains</span>(args[i])) { i++; <span class="kw">continue</span>; }
+    <span class="kw">if</span> (args[i].<span class="mt">StartsWith</span>(<span class="st">"--"</span>)) <span class="kw">continue</span>;
+    result.<span class="mt">Add</span>(args[i]);
+  }
+  <span class="kw">return</span> result.<span class="mt">ToArray</span>();
+}</td>
+          <td class="la">Two local helper functions. <ic>GetFlag</ic>: linear search + next-element return (O(n), fine for tiny arg arrays). <ic>StripFlags</ic>: uses a <ic>HashSet</ic> for O(1) flag lookup. Skips both the flag key AND its value (i++). Drops boolean flags (--verbose etc). Returns only positional args.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 08 SERVICES ════════════════════════════════ -->
+<section class="section" id="services">
+  <div class="section-label">08 · Services</div>
+  <h2>Service Layer — src/Services/</h2>
+  <p>Four service classes form the backbone of the application. Each has a single responsibility and communicates through clean interfaces.</p>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Service Interaction Diagram</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="s1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e5a0"/></marker>
+          <marker id="s2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#c084fc"/></marker>
+          <marker id="s3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ffc14e"/></marker>
+        </defs>
+
+        <!-- ConfigManager -->
+        <rect x="20" y="30" width="180" height="120" rx="10" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.5"/>
+        <text x="110" y="54" text-anchor="middle" fill="#ffc14e" font-size="11" font-weight="bold">ConfigManager</text>
+        <text x="110" y="73" text-anchor="middle" fill="#4d5670" font-size="9">static Load()</text>
+        <text x="110" y="87" text-anchor="middle" fill="#4d5670" font-size="9">Reads config.json via</text>
+        <text x="110" y="101" text-anchor="middle" fill="#4d5670" font-size="9">System.Text.Json</text>
+        <text x="110" y="115" text-anchor="middle" fill="#4d5670" font-size="9">Creates default if missing</text>
+        <text x="110" y="129" text-anchor="middle" fill="#4d5670" font-size="9">static Print() → console</text>
+        <text x="110" y="143" text-anchor="middle" fill="#4d5670" font-size="9">static NormalizeRuntime()</text>
+
+        <line x1="200" y1="90" x2="270" y2="90" stroke="#ffc14e" stroke-width="1.2" marker-end="url(#s3)"/>
+        <text x="235" y="83" text-anchor="middle" fill="#ffc14e" font-size="8">AppConfig</text>
+
+        <!-- OllamaRuntimeManager -->
+        <rect x="273" y="30" width="190" height="120" rx="10" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.5"/>
+        <text x="368" y="54" text-anchor="middle" fill="#ffc14e" font-size="11" font-weight="bold">OllamaRuntimeManager</text>
+        <text x="368" y="73" text-anchor="middle" fill="#4d5670" font-size="9">UsesDocker { get; }</text>
+        <text x="368" y="87" text-anchor="middle" fill="#4d5670" font-size="9">PrepareAsync(token)</text>
+        <text x="368" y="101" text-anchor="middle" fill="#4d5670" font-size="9">docker run / docker start</text>
+        <text x="368" y="115" text-anchor="middle" fill="#4d5670" font-size="9">GetStartupHelp() → string[]</text>
+        <text x="368" y="129" text-anchor="middle" fill="#4d5670" font-size="9">Returns PrepareResult</text>
+        <text x="368" y="143" text-anchor="middle" fill="#4d5670" font-size="9">{bool Success, string Message}</text>
+
+        <!-- OllamaService -->
+        <rect x="20" y="220" width="260" height="150" rx="10" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="150" y="244" text-anchor="middle" fill="#ff6b6b" font-size="11" font-weight="bold">OllamaService</text>
+        <text x="150" y="263" text-anchor="middle" fill="#4d5670" font-size="9">ctor(string host) → new HttpClient()</text>
+        <text x="150" y="278" text-anchor="middle" fill="#4d5670" font-size="9">IsRunningAsync() → GET /api/tags</text>
+        <text x="150" y="293" text-anchor="middle" fill="#4d5670" font-size="9">GetAvailableModelsAsync()</text>
+        <text x="150" y="308" text-anchor="middle" fill="#4d5670" font-size="9">→ GET /api/tags → parse list</text>
+        <text x="150" y="323" text-anchor="middle" fill="#4d5670" font-size="9">StreamGenerateAsync(prompt, model)</text>
+        <text x="150" y="338" text-anchor="middle" fill="#4d5670" font-size="9">→ POST /api/generate stream:true</text>
+        <text x="150" y="353" text-anchor="middle" fill="#ff6b6b" font-size="9">→ IAsyncEnumerable&lt;string&gt;</text>
+        <text x="150" y="367" text-anchor="middle" fill="#4d5670" font-size="8.5">(yields token strings one at a time)</text>
+
+        <!-- CodeAssistantService -->
+        <rect x="310" y="220" width="250" height="150" rx="10" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.5"/>
+        <text x="435" y="244" text-anchor="middle" fill="#c084fc" font-size="11" font-weight="bold">CodeAssistantService</text>
+        <text x="435" y="263" text-anchor="middle" fill="#4d5670" font-size="9">ctor(OllamaService, string model)</text>
+        <text x="435" y="278" text-anchor="middle" fill="#4d5670" font-size="9">AskAsync(question) → expert prompt</text>
+        <text x="435" y="293" text-anchor="middle" fill="#4d5670" font-size="9">WriteCodeAsync(description)</text>
+        <text x="435" y="308" text-anchor="middle" fill="#4d5670" font-size="9">FixBugsAsync(code, errorCtx)</text>
+        <text x="435" y="323" text-anchor="middle" fill="#4d5670" font-size="9">ReviewCodeAsync(code)</text>
+        <text x="435" y="338" text-anchor="middle" fill="#4d5670" font-size="9">ExplainCodeAsync(code)</text>
+        <text x="435" y="355" text-anchor="middle" fill="#4d5670" font-size="9">ChatAsync(history, message)</text>
+        <text x="435" y="370" text-anchor="middle" fill="#c084fc" font-size="8.5">Each → builds system prompt → OllamaService</text>
+
+        <!-- ConsoleUI -->
+        <rect x="590" y="220" width="240" height="150" rx="10" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="710" y="244" text-anchor="middle" fill="#00e5a0" font-size="11" font-weight="bold">ConsoleUI</text>
+        <text x="710" y="263" text-anchor="middle" fill="#4d5670" font-size="9">static PrintHelp()</text>
+        <text x="710" y="278" text-anchor="middle" fill="#4d5670" font-size="9">static SectionHeader(title)</text>
+        <text x="710" y="293" text-anchor="middle" fill="#4d5670" font-size="9">static Error / Warning / Info / Success</text>
+        <text x="710" y="308" text-anchor="middle" fill="#4d5670" font-size="9">static PrintModelTable(models)</text>
+        <text x="710" y="323" text-anchor="middle" fill="#4d5670" font-size="9">static WithSpinnerAsync&lt;T&gt;()</text>
+        <text x="710" y="340" text-anchor="middle" fill="#4d5670" font-size="8.5">→ runs task with animated spinner</text>
+        <text x="710" y="355" text-anchor="middle" fill="#4d5670" font-size="8.5">Console color helpers (ANSI)</text>
+        <text x="710" y="370" text-anchor="middle" fill="#4d5670" font-size="8.5">Used across all layers</text>
+
+        <!-- Arrows from CodeAssistant to Ollama -->
+        <line x1="310" y1="310" x2="280" y2="310" stroke="#c084fc" stroke-width="1.2" marker-end="url(#s2)"/>
+        <text x="295" y="303" text-anchor="middle" fill="#c084fc" font-size="8">delegates</text>
+
+        <!-- Arrow from Ollama to HTTP -->
+        <rect x="590" y="80" width="240" height="100" rx="10" fill="#131621" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="710" y="103" text-anchor="middle" fill="#ff6b6b" font-size="11" font-weight="bold">Ollama REST API</text>
+        <text x="710" y="122" text-anchor="middle" fill="#4d5670" font-size="9">http://localhost:11434</text>
+        <text x="710" y="137" text-anchor="middle" fill="#c3e88d" font-size="9">POST /api/generate</text>
+        <text x="710" y="152" text-anchor="middle" fill="#c3e88d" font-size="9">GET  /api/tags</text>
+        <text x="710" y="167" text-anchor="middle" fill="#4d5670" font-size="9">NDJSON stream response</text>
+
+        <line x1="280" y1="295" x2="590" y2="140" stroke="#ff6b6b" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#s1)"/>
+        <text x="445" y="200" text-anchor="middle" fill="#ff6b6b" font-size="8.5">HTTP POST + streaming response</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="exp-card">
+    <div class="exp-title">OllamaService — The HTTP Layer</div>
+    <div class="exp-body">Owns one <code>HttpClient</code> (singleton pattern). For streaming, uses <code>HttpCompletionOption.ResponseHeadersRead</code> to begin reading before the full response arrives. Reads response line-by-line (<code>ReadLineAsync()</code>), parses the <code>"response"</code> field from each NDJSON object using basic string parsing (no JSON library), and yields each token via <code>IAsyncEnumerable&lt;string&gt;</code>.</div>
+  </div>
+  <div class="exp-card blue">
+    <div class="exp-title">CodeAssistantService — The Prompt Engineer</div>
+    <div class="exp-body">One method per command type. Each method builds a different expert system prompt. For example, <code>FixBugsAsync()</code> uses a prompt like "You are an expert C# bug fixer. Analyze this code thoroughly, identify ALL bugs, return the complete fixed code with comments explaining each fix." The prompt quality is the single most impactful factor on output quality.</div>
+  </div>
+  <div class="exp-card yellow">
+    <div class="exp-title">ConfigManager — The Persistence Layer</div>
+    <div class="exp-body">Uses <code>System.Text.Json</code> (built into .NET 8) for reading and writing. The config path is <code>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".code-cli", "config.json")</code>. Creates the directory and file with defaults if either doesn't exist.</div>
+  </div>
+  <div class="exp-card red">
+    <div class="exp-title">OllamaRuntimeManager — The Environment Manager</div>
+    <div class="exp-body">Decides between local and Docker mode based on <code>config.Runtime</code>. In Docker mode, <code>PrepareAsync()</code> calls Docker CLI commands via <code>Process.Start()</code>: first tries <code>docker start code-cli-ollama</code>, and if the container doesn't exist, runs the full <code>docker run -d --name code-cli-ollama -p 11434:11434 -v code-cli-ollama:/root/.ollama ollama/ollama:latest</code>.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 09 COMMANDS ════════════════════════════════ -->
+<section class="section" id="commands-detail">
+  <div class="section-label">09 · Commands Detail</div>
+  <h2>All Commands — Detailed Reference</h2>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Chat Command — Special REPL Flow</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 860 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="c1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e5a0"/></marker>
+          <marker id="c2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#c084fc"/></marker>
+          <marker id="c3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ff6b6b"/></marker>
+        </defs>
+
+        <!-- Start -->
+        <ellipse cx="80" cy="50" rx="70" ry="28" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="80" y="46" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">chat starts</text>
+        <text x="80" y="60" text-anchor="middle" fill="#4d5670" font-size="9">print welcome banner</text>
+
+        <line x1="150" y1="50" x2="200" y2="50" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+
+        <!-- Read input -->
+        <rect x="203" y="30" width="160" height="40" rx="8" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="283" y="48" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">Console.ReadLine()</text>
+        <text x="283" y="62" text-anchor="middle" fill="#4d5670" font-size="9">await user input</text>
+
+        <line x1="363" y1="50" x2="413" y2="50" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+
+        <!-- Decision: inline command? -->
+        <polygon points="500,25 590,50 500,75 410,50" fill="#131621" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="500" y="46" text-anchor="middle" fill="#c4cde0" font-size="9">inline cmd</text>
+        <text x="500" y="60" text-anchor="middle" fill="#c4cde0" font-size="9">/fix /review?</text>
+
+        <!-- YES - inline cmd -->
+        <line x1="590" y1="50" x2="700" y2="50" stroke="#c084fc" stroke-width="1.2" marker-end="url(#c2)"/>
+        <text x="645" y="43" text-anchor="middle" fill="#c084fc" font-size="9">YES</text>
+        <rect x="703" y="30" width="140" height="40" rx="8" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.2"/>
+        <text x="773" y="48" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">Inline Dispatch</text>
+        <text x="773" y="62" text-anchor="middle" fill="#4d5670" font-size="9">/fix /review /explain /model</text>
+
+        <!-- NO - normal chat -->
+        <line x1="500" y1="75" x2="500" y2="115" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+        <text x="530" y="100" fill="#4d5670" font-size="9">NO — normal</text>
+
+        <!-- Decision: exit/clear? -->
+        <polygon points="500,120 590,145 500,170 410,145" fill="#131621" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="500" y="141" text-anchor="middle" fill="#c4cde0" font-size="9">exit / clear</text>
+        <text x="500" y="155" text-anchor="middle" fill="#c4cde0" font-size="9">typed?</text>
+
+        <!-- exit path -->
+        <line x1="410" y1="145" x2="300" y2="145" stroke="#ff6b6b" stroke-width="1.2" marker-end="url(#c3)"/>
+        <text x="355" y="138" text-anchor="middle" fill="#ff6b6b" font-size="9">exit/quit</text>
+        <rect x="170" y="128" width="128" height="34" rx="8" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="234" y="145" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">Process exits</text>
+        <text x="234" y="158" text-anchor="middle" fill="#4d5670" font-size="9">return 0</text>
+
+        <!-- clear path -->
+        <line x1="590" y1="145" x2="700" y2="145" stroke="#ffc14e" stroke-width="1.2" marker-end="url(#c1)"/>
+        <text x="645" y="138" text-anchor="middle" fill="#ffc14e" font-size="9">clear</text>
+        <rect x="703" y="128" width="140" height="34" rx="8" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.2"/>
+        <text x="773" y="145" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">history.Clear()</text>
+        <text x="773" y="158" text-anchor="middle" fill="#4d5670" font-size="9">back to input</text>
+
+        <!-- Add to history + AI call -->
+        <line x1="500" y1="170" x2="500" y2="200" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+        <text x="540" y="190" fill="#4d5670" font-size="9">regular msg</text>
+        <rect x="340" y="203" width="320" height="50" rx="8" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.2"/>
+        <text x="500" y="222" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">Append to conversation history</text>
+        <text x="500" y="238" text-anchor="middle" fill="#4d5670" font-size="9">{role:"user", content:message} → history list</text>
+        <text x="500" y="250" text-anchor="middle" fill="#4d5670" font-size="9">trim to config.HistorySize (default 10 turns)</text>
+
+        <line x1="500" y1="253" x2="500" y2="283" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+        <rect x="340" y="286" width="320" height="44" rx="8" fill="#1a1e2c" stroke="#ff6b6b" stroke-width="1.2"/>
+        <text x="500" y="304" text-anchor="middle" fill="#ff6b6b" font-size="10" font-weight="bold">assistant.ChatAsync(history, message)</text>
+        <text x="500" y="318" text-anchor="middle" fill="#4d5670" font-size="9">stream response → Console.Write() token by token</text>
+        <text x="500" y="330" text-anchor="middle" fill="#4d5670" font-size="9">append assistant response to history</text>
+
+        <!-- Loop back arrow -->
+        <line x1="340" y1="308" x2="160" y2="308" stroke="#00e5a0" stroke-width="1.2"/>
+        <line x1="160" y1="308" x2="160" y2="50" stroke="#00e5a0" stroke-width="1.2"/>
+        <line x1="160" y1="50" x2="200" y2="50" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#c1)"/>
+        <text x="100" y="200" fill="#00e5a0" font-size="9" transform="rotate(-90 100 200)">loop back to input</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-name">chat</div>
+      <div class="cmd-desc">Infinite REPL loop. Full conversation history (list of {role, content} pairs). Supports inline <ic>/fix</ic>, <ic>/review</ic>, <ic>/explain</ic>, <ic>/model</ic>, <ic>clear</ic>, <ic>exit</ic>. History trimmed to <ic>history_size</ic> config value. Ctrl+C exits gracefully.</div>
+      <div class="cmd-usage">code-cli chat
+code-cli chat --model deepseek-coder:6.7b
+code-cli chat --runtime docker</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">ask</div>
+      <div class="cmd-desc">Single-turn Q&A. Joins <ic>cleanArgs[1..]</ic> with spaces so quotes aren't required. Streams answer. Expert coding assistant system prompt — focused on C#/.NET by preferred_language setting.</div>
+      <div class="cmd-usage">code-cli ask How does IQueryable differ from IEnumerable
+code-cli ask "CQRS in .NET 8" --output ans.md</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">write</div>
+      <div class="cmd-desc">Code generation from a plain-English description. System prompt instructs: production-ready code, proper error handling, XML doc comments, follow SOLID principles. Streams generated code.</div>
+      <div class="cmd-usage">code-cli write "JWT auth middleware ASP.NET Core 8"
+code-cli write "Thread-safe LRU cache C#" --output LRU.cs</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">fix</div>
+      <div class="cmd-desc">Reads file via <ic>File.ReadAllTextAsync()</ic>. Sends full source code + optional error context. System prompt: "identify ALL bugs, return the complete fixed code." Optional <ic>--error</ic> makes the fix targeted.</div>
+      <div class="cmd-usage">code-cli fix Program.cs
+code-cli fix MyService.cs --error "NRE at line 42"
+code-cli fix f.cs --output f.fixed.cs</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">review</div>
+      <div class="cmd-desc">Full production-readiness audit. System prompt covers: security vulnerabilities, SOLID principles, performance issues, error handling gaps, logging, test coverage. Returns structured markdown report.</div>
+      <div class="cmd-usage">code-cli review AuthController.cs
+code-cli review PaymentService.cs --output review.md</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">explain</div>
+      <div class="cmd-desc">Line-by-line walkthrough. System prompt instructs: explain purpose, patterns used, key design decisions, trade-offs, potential improvements. Great for onboarding or understanding unfamiliar code.</div>
+      <div class="cmd-usage">code-cli explain Program.cs
+code-cli explain Algorithms/QuickSort.cs --output exp.md</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">models</div>
+      <div class="cmd-desc">Lists installed Ollama models via <ic>GET /api/tags</ic>. Renders table with name, size. Shows active model. Suggests pull command (runtime-aware: docker exec vs ollama pull).</div>
+      <div class="cmd-usage">code-cli models</div>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-name">config</div>
+      <div class="cmd-desc">Prints the current AppConfig loaded from <ic>~/.code-cli/config.json</ic>. Read-only from CLI — edit the JSON file to change settings permanently. Created on first run with sensible defaults.</div>
+      <div class="cmd-usage">code-cli config
+code-cli --version
+code-cli --help</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 10 BUILD SCRIPTS ══════════════════════════ -->
+<section class="section" id="build-scripts">
+  <div class="section-label">10 · Build Scripts</div>
+  <h2>Build & Install Scripts</h2>
+
+  <div class="diagram-box">
+    <div class="diagram-header">
+      <div class="dot dr"></div><div class="dot da"></div><div class="dot dg"></div>
+      <span style="margin-left:8px">Build Pipeline Flow — Windows (build.bat) and Linux/macOS (build.sh)</span>
+    </div>
+    <div class="diagram-body">
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="b1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00e5a0"/></marker>
+          <marker id="b2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ff6b6b"/></marker>
+        </defs>
+
+        <!-- Trigger -->
+        <ellipse cx="70" cy="80" rx="60" ry="28" fill="#1a1e2c" stroke="#00e5a0" stroke-width="1.5"/>
+        <text x="70" y="76" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">Developer</text>
+        <text x="70" y="90" text-anchor="middle" fill="#4d5670" font-size="9">runs build.bat / .sh</text>
+
+        <line x1="130" y1="80" x2="168" y2="80" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#b1)"/>
+
+        <!-- Step 0: Prereq check -->
+        <rect x="170" y="55" width="130" height="50" rx="8" fill="#1a1e2c" stroke="#ffc14e" stroke-width="1.2"/>
+        <text x="235" y="74" text-anchor="middle" fill="#ffc14e" font-size="10" font-weight="bold">Prereq Check</text>
+        <text x="235" y="88" text-anchor="middle" fill="#4d5670" font-size="8.5">where dotnet / command -v</text>
+        <text x="235" y="100" text-anchor="middle" fill="#4d5670" font-size="8.5">sh: also detects OS+ARCH→RID</text>
+
+        <!-- Fail path -->
+        <line x1="235" y1="105" x2="235" y2="130" stroke="#ff6b6b" stroke-width="1" stroke-dasharray="3,2"/>
+        <rect x="175" y="133" width="120" height="26" rx="5" fill="#131621" stroke="#ff6b6b" stroke-width="1"/>
+        <text x="235" y="150" text-anchor="middle" fill="#ff6b6b" font-size="8.5">error + exit /b 1</text>
+
+        <line x1="300" y1="80" x2="338" y2="80" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#b1)"/>
+
+        <!-- Step 1: Restore -->
+        <rect x="340" y="55" width="130" height="50" rx="8" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="405" y="74" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">[1/3] Restore</text>
+        <text x="405" y="88" text-anchor="middle" fill="#4d5670" font-size="8.5">dotnet restore --nologo -q</text>
+        <text x="405" y="100" text-anchor="middle" fill="#4d5670" font-size="8.5">No packages → instant</text>
+
+        <line x1="470" y1="80" x2="508" y2="80" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#b1)"/>
+
+        <!-- Step 2: Build -->
+        <rect x="510" y="55" width="130" height="50" rx="8" fill="#1a1e2c" stroke="#5b8eff" stroke-width="1.2"/>
+        <text x="575" y="74" text-anchor="middle" fill="#5b8eff" font-size="10" font-weight="bold">[2/3] Build</text>
+        <text x="575" y="88" text-anchor="middle" fill="#4d5670" font-size="8.5">dotnet build -c Release</text>
+        <text x="575" y="100" text-anchor="middle" fill="#4d5670" font-size="8.5">Compiler optimizations on</text>
+
+        <line x1="640" y1="80" x2="678" y2="80" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#b1)"/>
+
+        <!-- Step 3: Publish -->
+        <rect x="680" y="40" width="158" height="80" rx="8" fill="#1a1e2c" stroke="#c084fc" stroke-width="1.5"/>
+        <text x="759" y="62" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="bold">[3/3] Publish</text>
+        <text x="759" y="78" text-anchor="middle" fill="#4d5670" font-size="8.5">-r win-x64 / osx-arm64 etc</text>
+        <text x="759" y="92" text-anchor="middle" fill="#4d5670" font-size="8.5">--self-contained true</text>
+        <text x="759" y="106" text-anchor="middle" fill="#4d5670" font-size="8.5">PublishSingleFile=true</text>
+        <text x="759" y="120" text-anchor="middle" fill="#c3e88d" font-size="8.5">→ publish/code-cli[.exe]</text>
+
+        <!-- Output box -->
+        <rect x="170" y="190" width="640" height="80" rx="10" fill="#131621" stroke="#00e5a0" stroke-width="1.2"/>
+        <text x="490" y="213" text-anchor="middle" fill="#00e5a0" font-size="10" font-weight="bold">Output: Single Self-Contained Binary</text>
+        <text x="490" y="232" text-anchor="middle" fill="#4d5670" font-size="8.5">Windows: publish\code-cli.exe  (~70MB, includes .NET 8 runtime + app code)</text>
+        <text x="490" y="248" text-anchor="middle" fill="#4d5670" font-size="8.5">macOS: publish/code-cli  (osx-arm64 for M1/M2, osx-x64 for Intel)</text>
+        <text x="490" y="264" text-anchor="middle" fill="#4d5670" font-size="8.5">Linux: publish/code-cli  (linux-x64 or linux-arm64)</text>
+        <text x="490" y="280" text-anchor="middle" fill="#c3e88d" font-size="8.5">No .NET runtime installation required on target machine</text>
+
+        <!-- Arrow down to output -->
+        <line x1="759" y1="120" x2="759" y2="188" stroke="#00e5a0" stroke-width="1.2" marker-end="url(#b1)"/>
+      </svg>
+    </div>
+  </div>
+
+  <h3>install.bat — Windows Auto-Install</h3>
+  <div class="code-file">
+    <div class="code-file-header">
+      <div class="cfn">📦 install.bat</div>
+      <div class="cfm">61 lines · Windows Batch · User-scope PATH patch</div>
+    </div>
+    <div class="code-scroll">
+      <table class="code-table">
+        <tr class="hl">
+          <td class="ln">11–13</td>
+          <td class="lc"><span class="kw">set</span> INSTALL_DIR=%USERPROFILE%\.code-cli\bin
+<span class="kw">set</span> EXE_NAME=code-cli.exe
+<span class="kw">set</span> SOURCE_EXE=publish\%EXE_NAME%</td>
+          <td class="la">Install target is <ic>~/.code-cli/bin/</ic> — inside user home directory, no admin rights needed. Same pattern as npm, rustup, go.</td>
+        </tr>
+        <tr>
+          <td class="ln">33–44</td>
+          <td class="lc"><span class="kw">for /f</span> <span class="st">"tokens=2*"</span> %%A <span class="kw">in</span> (
+  <span class="st">'reg query "HKCU\Environment" /v PATH'</span>
+) <span class="kw">do set</span> CURRENT_PATH=%%B
+echo %CURRENT_PATH% | <span class="kw">findstr</span> /i <span class="st">"%INSTALL_DIR%"</span>
+<span class="kw">if</span> %ERRORLEVEL% neq 0
+  <span class="kw">setx</span> PATH <span class="st">"%CURRENT_PATH%;%INSTALL_DIR%"</span></td>
+          <td class="la">Reads user PATH from Windows Registry (<ic>HKCU\Environment</ic>), checks if install dir is already present using <ic>findstr</ic>. If not, uses <ic>setx</ic> to permanently write the new PATH to the registry. No admin — <ic>HKCU</ic> is user-scoped.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 11 CONFIG ══════════════════════════════════ -->
+<section class="section" id="config">
+  <div class="section-label">11 · Configuration</div>
+  <h2>Configuration Reference</h2>
+
+  <div class="config-box">
+    <span class="kw">{</span><br>
+    &nbsp;&nbsp;<span class="pa">"model"</span><span class="op">:</span> <span class="st">"qwen2.5-coder:7b"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// AI model tag used for all requests</span><br>
+    &nbsp;&nbsp;<span class="pa">"runtime"</span><span class="op">:</span> <span class="st">"local"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// "local" or "docker"</span><br>
+    &nbsp;&nbsp;<span class="pa">"host"</span><span class="op">:</span> <span class="st">"http://localhost:11434"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Ollama API base URL</span><br>
+    &nbsp;&nbsp;<span class="pa">"docker_image"</span><span class="op">:</span> <span class="st">"ollama/ollama:latest"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Docker image</span><br>
+    &nbsp;&nbsp;<span class="pa">"docker_container_name"</span><span class="op">:</span> <span class="st">"code-cli-ollama"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Container name</span><br>
+    &nbsp;&nbsp;<span class="pa">"docker_volume"</span><span class="op">:</span> <span class="st">"code-cli-ollama"</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Named volume for model persistence</span><br>
+    &nbsp;&nbsp;<span class="pa">"docker_auto_start"</span><span class="op">:</span> <span class="kw">true</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Auto-start container if stopped</span><br>
+    &nbsp;&nbsp;<span class="pa">"stream"</span><span class="op">:</span> <span class="kw">true</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Token-by-token vs buffered output</span><br>
+    &nbsp;&nbsp;<span class="pa">"history_size"</span><span class="op">:</span> <span class="nm">10</span>,<span style="color:var(--cm);font-style:italic;margin-left:20px">// Max chat turns kept in memory</span><br>
+    &nbsp;&nbsp;<span class="pa">"preferred_language"</span><span class="op">:</span> <span class="st">"auto"</span><span style="color:var(--cm);font-style:italic;margin-left:20px">// "auto" or "csharp", "python", etc.</span><br>
+    <span class="kw">}</span>
+  </div>
+
+  <h3>All CLI Flags</h3>
+  <div class="fwrap">
+    <table class="ftable">
+      <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+      <tr><td>--model &lt;name&gt;</td><td>qwen2.5-coder:7b</td><td>Override the AI model for this run only. Does not change config.json.</td></tr>
+      <tr><td>--host &lt;url&gt;</td><td>http://localhost:11434</td><td>Point to a different Ollama server — remote machine, non-default port.</td></tr>
+      <tr><td>--runtime &lt;type&gt;</td><td>local</td><td>Choose <ic>local</ic> or <ic>docker</ic>. Overrides config.json for this run.</td></tr>
+      <tr><td>--output &lt;file&gt;</td><td>(console only)</td><td>Also save the AI response to a file. Works with ask, write, fix, review, explain.</td></tr>
+      <tr><td>--error &lt;msg&gt;</td><td>(none)</td><td>For <ic>fix</ic> command only: provide error context to help AI target the fix precisely.</td></tr>
+      <tr><td>--no-stream</td><td>(streaming on)</td><td>Buffer the full response before printing. Useful in scripts that process output.</td></tr>
+      <tr><td>--verbose</td><td>(off)</td><td>Print connection details, active model, and full stack traces on errors.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ 12 TECH STACK ════════════════════════════════ -->
+<section class="section" id="tech">
+  <div class="section-label">12 · Tech Stack</div>
+  <h2>Technology Choices</h2>
+
+  <div class="tech-grid">
+    <div class="tech-item"><div class="tech-label">Runtime</div><div class="tech-value">.NET 8 LTS</div><div class="tech-detail">Long-Term Support, C# 12, cross-platform</div></div>
+    <div class="tech-item"><div class="tech-label">Language</div><div class="tech-value">C# 12</div><div class="tech-detail">Top-level stmts, pattern matching, nullable refs</div></div>
+    <div class="tech-item"><div class="tech-label">AI Engine</div><div class="tech-value">Ollama</div><div class="tech-detail">Local LLM runtime, REST API at :11434</div></div>
+    <div class="tech-item"><div class="tech-label">Default Model</div><div class="tech-value">Qwen 2.5 Coder 7B</div><div class="tech-detail">Alibaba's code LLM, ~4GB, best quality/speed</div></div>
+    <div class="tech-item"><div class="tech-label">HTTP</div><div class="tech-value">HttpClient</div><div class="tech-detail">Built-in BCL, ResponseHeadersRead streaming</div></div>
+    <div class="tech-item"><div class="tech-label">JSON</div><div class="tech-value">System.Text.Json</div><div class="tech-detail">Built-in BCL, zero NuGet, for config R/W</div></div>
+    <div class="tech-item"><div class="tech-label">Output Binary</div><div class="tech-value">Single-File EXE</div><div class="tech-detail">Self-contained, no .NET install on target</div></div>
+    <div class="tech-item"><div class="tech-label">Dependencies</div><div class="tech-value">Zero NuGet</div><div class="tech-detail">Pure .NET BCL — enforced by NuGet.config</div></div>
+  </div>
+
+  <h3>Recommended Models by Machine Spec</h3>
+  <div class="fwrap">
+    <table class="ftable">
+      <tr><th>Model</th><th>Disk</th><th>Min RAM</th><th>Best For</th></tr>
+      <tr><td>qwen2.5-coder:1.5b</td><td>~1 GB</td><td>4 GB</td><td>Low-spec machines, fastest response</td></tr>
+      <tr><td>qwen2.5-coder:7b</td><td>~4 GB</td><td>8 GB</td><td>Best balance ✅ Recommended default</td></tr>
+      <tr><td>qwen2.5-coder:14b</td><td>~8 GB</td><td>16 GB</td><td>Highest code quality</td></tr>
+      <tr><td>deepseek-coder:6.7b</td><td>~3.8 GB</td><td>8 GB</td><td>Excellent alternative, very good at C#</td></tr>
+      <tr><td>codellama:7b</td><td>~3.8 GB</td><td>8 GB</td><td>Good general-purpose fallback</td></tr>
+    </table>
+  </div>
+
+  <hr class="div">
+
+  <div style="text-align:center;padding:48px 0">
+    <div style="font-family:'Syne',sans-serif;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Built with ❤️ by</div>
+    <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-1px">Shatrughna</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:10px">Senior Engineer I · .NET · Ticketmaster</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px">
+      Using .NET 8 &amp; Ollama · MIT License ·
+      <a href="https://github.com/shatru123/Code-Cli" style="color:var(--accent2);text-decoration:none">github.com/shatru123/Code-Cli</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.toc-bar a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.toc-bar a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-35% 0px -60% 0px' });
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
